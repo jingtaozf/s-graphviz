@@ -1,9 +1,12 @@
 * Notes on this version
 
-This version (marked as 1.2.1) of  the library is a patched version of
-the   original  one[1]   made   to  use   some   new  uiop   features,
-sb-ext:run-program  if available  and to  pass  its own  tests (I  was
-unable to make them pass them on my system).
+*I  am  not the  original  author  of  this library,  Martin  Loetzsch
+(http://www.martin-loetzsch.de/S-DOT) is.*
+
+This version  (marked as 1.3) of  the library is a  patched version of
+the  original  one[fn:origin-website]  made   to  use  some  new  uiop
+features, sb-ext:run-program if available and to pass its own tests (I
+was unable to make them pass them on my system).
 
 Important note: I  have switched from symbols to keywords  for the DSL
 (i.e s-dot::'node -> :node).
@@ -47,5 +50,5 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-[1] [[http://martin-loetzsch.de/S-DOT/][http://martin-loetzsch.de/S-DOT/]]
+[fn:origin-website] [[http://martin-loetzsch.de/S-DOT/][http://martin-loetzsch.de/S-DOT/]]
 
