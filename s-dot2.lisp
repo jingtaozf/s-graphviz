@@ -249,14 +249,20 @@ SBCL users may take advantage of sb-ext:run-program, opening a pipe to
                              :ignore-error-status t)))
 
 #+sbcl (defun render-s-dot-sbcl (file-name format graph &key (check-syntax t))
-         (with-open-file (stream file-name :direction :output :if-exists :supersede
+         (with-open-file (stream file-name
+                                 :direction         :output
+                                 :if-exists         :supersede
                                  :if-does-not-exist :create
-                                 :element-type '(unsigned-byte 8))
+                                 :element-type      '(unsigned-byte 8))
            (let ((process (sb-ext:run-program *dot-exe*
-                                              (list (format nil "~a~a"
+                                              (list (format nil
+                                                            "~a~a"
                                                             *dot-output-format-switch* format))
-                                              :output :stream :input :stream
-                                              :wait nil :search t)))
+                                              :output   :stream
+                                              :input    :stream
+                                              :error    t
+                                              :wait     nil
+                                              :search   t)))
              (when process
                (let ((process-input-stream (sb-ext:process-input process))
                      (buffer (make-array 256 :element-type '(unsigned-byte 8))))
@@ -272,9 +278,8 @@ SBCL users may take advantage of sb-ext:run-program, opening a pipe to
                (sb-ext:process-exit-code (sb-ext:process-close process))))))
 
 (defun test-s-dot ()
-  "Generates a few charts in /tmp/. If you don't have /tmp/,
-change the directory below to something else"
-  (let ((directory '(:absolute "tmp"))
+  "Generates a few charts in the system temporary directory"
+  (let ((directory (uiop:default-temporary-directory))
         (graph1 '(:graph ()
                   (:node ((:id "a") (:label "a")))
                   (:cluster ((:id "c1") (:label "c1") (:style "filled") (:fillcolor "#EEEEFF")
@@ -319,11 +324,14 @@ change the directory below to something else"
                   (:node ((:id "#(0 1)") (:label "#(0 1 2)")))
                   (:node ((:id "#(0 2)") (:label "#(0 2 2)")))
                   (:edge ((:from "#(0 2)") (:to "#(0 1)"))))))
-    (render-s-dot (make-pathname :directory directory :name "test1" :type "gif") "gif" graph1)
-    (render-s-dot (make-pathname :directory directory :name "test2" :type "ps") "ps" graph1)
-    (render-s-dot (make-pathname :directory directory :name "test3" :type "jpg") "jpg" graph2)
-    (render-s-dot (make-pathname :directory directory :name "test4" :type "png") "png" graph2)
-    (render-s-dot (make-pathname :directory directory :name "test5" :type "svg") "svg" graph2)
-    (render-s-dot (make-pathname :directory directory :name "test6" :type "ps") "ps" graph3)))
+    (flet ((make-filepath (name extension)
+             (uiop:merge-pathnames* directory
+                                    (make-pathname :name name :type extension))))
+    (render-s-dot (make-filepath "test1" "gif") "gif" graph1)
+    (render-s-dot (make-filepath "test2" "ps")  "ps"  graph1)
+    (render-s-dot (make-filepath "test3" "jpg") "jpg" graph2)
+    (render-s-dot (make-filepath "test4" "png") "png" graph2)
+    (render-s-dot (make-filepath "test5" "svg") "svg" graph2)
+    (render-s-dot (make-filepath "test6" "ps")  "ps"  graph3))))
 
 ;;(test-s-dot)
