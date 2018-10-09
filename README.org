@@ -11,32 +11,39 @@ was unable to make them pass them on my system).
 Important note: I  have switched from symbols to keywords  for the DSL
 (i.e s-dot::'node -> :node).
 
+
+* BUGS
+
+Please file bug report on
+the [[https://notabug.org/cage/s-dot2/issues][issue tracker]].
+
+
 * License
 
 A  Common Lisp  language binding  for  the graphviz  'dot' tool.   See
 http://www.martin-loetzsch.de/S-DOT for details
 
 Copyright (c) 2006-2010 Martin Loetzsch.  All rights reserved.
-	      
+
 Redistribution and  use in  source and binary  forms, with  or without
 modification, are permitted provided that the following conditions are
 met:
-	      
+
 1. Redistributions of  source code  must retain  the above  copyright
    notice, this list of conditions and the following disclaimer.
-	      
+
 2. Redistributions in  binary form must reproduce  the above copyright
    notice, this list of conditions and the following disclaimer in the
    documentation   and/or   other    materials   provided   with   the
    distribution.
-	      
+
 3.  The end-user  documentation included  with the  redistribution, if
    any,  must  include  the following  acknowledgment:  "This  product
    includes      S-DOT      developed     by      Martin      Loetzsch
    (http://www.martin-loetzsch.de/S-DOT)."       Alternately,     this
    acknowledgment may appear  in the software itself,  if and wherever
    such third-party acknowledgments normally appear.
-	      
+
 THIS  SOFTWARE  IS PROVIDED  BY  MARTIN  LOETZSCH  ``AS IS''  AND  ANY
 EXPRESSED OR  IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED  TO, THE
 IMPLIED  WARRANTIES OF  MERCHANTABILITY AND  FITNESS FOR  A PARTICULAR
@@ -51,4 +58,3 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 [fn:origin-website] [[http://martin-loetzsch.de/S-DOT/][http://martin-loetzsch.de/S-DOT/]]
-

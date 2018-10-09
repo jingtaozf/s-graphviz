@@ -43,7 +43,7 @@
 (defsystem :s-dot2
   :description "Render Graphviz graphs from within Lisp"
   :long-description "See http://martin-loetzsch.de/S-DOT/"
-  :author "Martin Loetzsch"
+  :author "Martin Loetzsch, cage"
   :licence "BSD-style"
   :version "1.3.0"
   :depends-on ("uiop")
