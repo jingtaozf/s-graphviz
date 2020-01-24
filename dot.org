@@ -70,14 +70,6 @@ subgraph	:	[ subgraph [ ID ] ] '{' stmt_list '}'
 compass_pt	:	(n | ne | e | se | s | sw | w | nw | c | _)
 #+end_src
 ** global variables
-*** path of dot executable
-#+BEGIN_SRC lisp
-(defparameter *dot-exe* "dot")
-#+END_SRC
-*** the command line option for dot needed to specify the output format
-#+BEGIN_SRC lisp
-(defparameter *dot-output-format-switch* "-T")
-#+END_SRC
 *** the encode stream
 The encoded dot expressions will print to this stream.
 #+BEGIN_SRC lisp
@@ -100,7 +92,10 @@ and then rendered.
 Format should be one out of http://www.graphviz.org/doc/info/output.html,
 for example svg,  ps, gif, png, or jpg.
 #+BEGIN_SRC lisp
-(defun render-s-dot (file-name statement-list &key (format (pathname-type file-name))
+(defun render-s-dot (file-name statement-list &key
+                               (format (pathname-type file-name))
+                               (dot-exe "dot")
+                               (dot-output-format-switch "-T")
                                (graph-type :digraph) id)
   (let ((dot-file-name (make-pathname :directory (pathname-directory file-name)
                                       :name (pathname-name file-name) :type "dot")))
@@ -108,7 +103,7 @@ for example svg,  ps, gif, png, or jpg.
                             :if-does-not-exist :create)
       (format-s-dot statement-list :graph-type graph-type :id id :stream stream))
     (uiop:run-program (format nil "~a -o ~a ~a~a ~a"
-                              *dot-exe* file-name *dot-output-format-switch*
+                              dot-exe file-name dot-output-format-switch
                               format dot-file-name)
                       :ignore-error-status t)))
 #+END_SRC
