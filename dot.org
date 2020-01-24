@@ -1,0 +1,408 @@
+# -*- Mode: POLY-ORG ;-*- ---
+#+Title: a literate version of dot
+#+OPTIONS: tex:t toc:2 \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t
+#+STARTUP: latexpreview
+#+STARTUP: noindent
+#+STARTUP: inlineimages
+#+PROPERTY: literate-lang lisp
+#+PROPERTY: literate-load yes
+#+STARTUP: entitiespretty
+#+LATEX_HEADER: \RedeclareSectionCommand[tocnumwidth=2.6em]{section}
+#+LATEX_HEADER: \RedeclareSectionCommand[tocindent=4.1em,tocnumwidth=3.5em]{subsection}
+#+LATEX_HEADER: % copied from lstlang1.sty
+#+LATEX_HEADER: \lstdefinelanguage{elisp}[]{lisp} {}
+#+LATEX_HEADER: \lstloadlanguages{elisp}
+* Table of Contents                                            :noexport:TOC:
+- [[#introduction][Introduction]]
+- [[#preparation][Preparation]]
+- [[#language-presentation][Language presentation]]
+  - [[#global-variables][global variables]]
+  - [[#how-to-render-a-dot-s-expression][how to render a dot s-expression]]
+  - [[#how-to-format-a-dot-s-expression][how to format a dot s-expression]]
+  - [[#graph][graph]]
+  - [[#stmt-list][stmt-list]]
+  - [[#stmt][stmt]]
+  - [[#node-statement][node statement]]
+  - [[#edge-statement][edge statement]]
+  - [[#attribute-statement][attribute statement]]
+  - [[#attribute][attribute]]
+  - [[#subgraph][subgraph]]
+  - [[#id][id]]
+  - [[#port][port]]
+  - [[#attr-list][attr list]]
+- [[#tests][Tests]]
+  - [[#preparation-1][Preparation]]
+  - [[#node-statement-1][node statement]]
+
+* Introduction
+Dot is an S-Expression syntax for the input language of the 'Dot' graph drawing tool from the [[http://www.graphviz.org/][AT&T GraphViz]] suite.
+With Dot, you can render 'Dot' graphs from within Common Lisp.
+The idea of this package is from [[http://martin-loetzsch.de/S-DOT/][S-DOT]].
+
+* Preparation
+Let's create an individual package for this module.
+#+BEGIN_SRC lisp
+(defpackage :dot
+  (:use :common-lisp :iter)
+  (:export))
+(in-package :dot)
+#+END_SRC
+* Language presentation
+We will use a lisp style to present the [[https://www.graphviz.org/doc/info/lang.html][DOT language]].
+#+begin_src bnf
+graph	:	[ strict ] (graph | digraph) [ ID ] '{' stmt_list '}'
+stmt_list	:	[ stmt [ ';' ] stmt_list ]
+stmt	:	node_stmt
+           |	edge_stmt
+           |	attr_stmt
+           |	ID '=' ID
+           |	subgraph
+attr_stmt	:	(graph | node | edge) attr_list
+attr_list	:	'[' [ a_list ] ']' [ attr_list ]
+a_list	:	ID '=' ID [ (';' | ',') ] [ a_list ]
+edge_stmt	:	(node_id | subgraph) edgeRHS [ attr_list ]
+edgeRHS	:	edgeop (node_id | subgraph) [ edgeRHS ]
+node_stmt	:	node_id [ attr_list ]
+node_id	:	ID [ port ]
+port	:	':' ID [ ':' compass_pt ]
+       |	':' compass_pt
+subgraph	:	[ subgraph [ ID ] ] '{' stmt_list '}'
+compass_pt	:	(n | ne | e | se | s | sw | w | nw | c | _)
+#+end_src
+** global variables
+*** path of dot executable
+#+BEGIN_SRC lisp
+(defparameter *dot-exe* "dot")
+#+END_SRC
+*** the command line option for dot needed to specify the output format
+#+BEGIN_SRC lisp
+(defparameter *dot-output-format-switch* "-T")
+#+END_SRC
+*** the encode stream
+The encoded dot expressions will print to this stream.
+#+BEGIN_SRC lisp
+(defvar *dot-stream*)
+#+END_SRC
+*** the indent level
+How many whitespaces will be written before printing current dot expression.
+#+BEGIN_SRC lisp
+(defvar *indent-spaces* 0)
+#+END_SRC
+*** the default size for indent tab
+#+BEGIN_SRC lisp
+(defvar *indent-tab-size* 2)
+#+END_SRC
+** how to render a dot s-expression
+Renders a s-dot graph into a graphic file. 
+~file-name~ should be a pathname.
+If the file-name is ~/foo/bar.png~ , the dot file ~/foo/bar.dot~ is created
+and then rendered.
+Format should be one out of http://www.graphviz.org/doc/info/output.html,
+for example svg,  ps, gif, png, or jpg.
+#+BEGIN_SRC lisp
+(defun render-s-dot (file-name statement-list &key (format (pathname-type file-name))
+                               (graph-type :digraph) id)
+  (let ((dot-file-name (make-pathname :directory (pathname-directory file-name)
+                                      :name (pathname-name file-name) :type "dot")))
+    (with-open-file (stream dot-file-name :direction :output :if-exists :supersede
+                            :if-does-not-exist :create)
+      (format-s-dot statement-list :graph-type graph-type :id id :stream stream))
+    (uiop:run-program (format nil "~a -o ~a ~a~a ~a"
+                              *dot-exe* file-name *dot-output-format-switch*
+                              format dot-file-name)
+                      :ignore-error-status t)))
+#+END_SRC
+
+We will provide a helpful routine to render a dot s-expression and open it in Emacs.
+#+BEGIN_SRC lisp :load dev
+(defmacro render-and-open-s-dot (file-name &rest left-args)
+  `(progn
+     (render-s-dot ,file-name ,@left-args)
+     (swank:eval-in-emacs `(find-file ,,file-name) t)))
+#+END_SRC
+
+
+** how to format a dot s-expression
+#+BEGIN_SRC lisp
+(defun format-s-dot (statement-list &key (graph-type :digraph) id stream)
+  (let ((*dot-stream* (or stream
+                          (make-string-output-stream))))
+    (format-graph (append (list graph-type id) statement-list))
+    (when (null stream)
+      (get-output-stream-string *dot-stream*))))
+#+END_SRC
+
+** graph
+- The top expression must begin with the graph type:
+  - ~:graph~ or
+  - ~:digraph~, or
+  - ~(:strict :graph)~ or
+  - ~(:strict :digraph)~
+#+BEGIN_SRC lisp
+(defvar *valid-graph-predicates* '(:graph :digraph (:strict :graph) (:strict :digraph)))
+#+END_SRC
+- the second item in top expression will be the graph ~ID~ if not null.
+- the left items in top expression are the ~stmt_list~ for this graph.
+#+BEGIN_SRC lisp
+(defun format-graph (s-expression)
+  (let ((graph-type (car s-expression))
+        (id (second s-expression))
+        (stmt-list (cddr s-expression))
+        (*indent-spaces* 0))
+    ;; check graph type.
+    (unless (find graph-type *valid-graph-predicates* :test #'equal)
+      (error "The dot graph must be a 'graph' or a 'digraph'!"))
+    ;; write out graph type.
+    (if (atom graph-type)
+      (format *dot-stream* "~(~a~) " graph-type)
+      (format *dot-stream* "~{~(~a ~)~}" graph-type))
+    ;; write out optional graph ID
+    (when id
+      (format-id id))
+
+    (format-stmt-list stmt-list)))
+#+END_SRC
+
+** stmt-list
+#+BEGIN_SRC lisp
+(defun format-stmt-list (stmt-list)
+  (format *dot-stream* "{~%")
+  (incf *indent-spaces* *indent-tab-size*)
+  ;; write out statements
+  (iter (for stmt in stmt-list)
+        (iter (repeat *indent-spaces*)
+              (write-char #\Space *dot-stream*))
+        (format-stmt stmt)
+        (format *dot-stream* ";~%"))
+  (format *dot-stream* "}")
+  (decf *indent-spaces* *indent-tab-size*))
+#+END_SRC
+
+** stmt
+There are many different kinds of statements,let's recogize them one by one.
+
+#+BEGIN_SRC lisp
+(defun format-stmt (stmt)
+  (case (car stmt)
+    ((:-> :--) (format-edge-stmt stmt))
+    ((:graph :node :edge) (format-attr-stmt stmt))
+    (= (format-attribute stmt))
+    (:subgraph (format-subgraph-stmt stmt))
+    (otherwise (format-node-stmt stmt))))
+#+END_SRC
+** node statement
+
+If a statement starts without a known keyword, then it's a node statement,for example 
+#+BEGIN_SRC lisp :load no
+(render-and-open-s-dot
+ "/tmp/node1.pdf" 
+ '((node1 (:label "nice node") (:shape :box) (:fontname "Arial") (:fontcolor "#AA0000"))))
+#+END_SRC
+
+#+BEGIN_SRC lisp
+(defun format-node-stmt (stmt)
+  (let ((id-port (first stmt))
+        (attr-list (cdr stmt)))
+    (format-node-id id-port)
+    (format-attr-list attr-list)))
+#+END_SRC
+*** node id
+#+begin_src bnf
+node_id	:	ID [ port ]
+#+end_src
+In a s-expression, it can be a single id or a list contains both id and port.
+#+BEGIN_SRC lisp
+(defun format-node-id (id-port)
+  (if (atom id-port)
+    (format-id id-port)
+    (let ((id (first id-port))
+          (port (second id-port)))
+      (format-id id)
+      (when port
+        (format-port port)))))
+#+END_SRC
+** edge statement
+#+begin_src bnf
+edge_stmt	:	(node_id | subgraph) edgeRHS [ attr_list ]
+edgeRHS	:	edgeop (node_id | subgraph) [ edgeRHS ]
+#+end_src
+In a s-expression, it's a list that starts with an ~edgeop~ and an ~attr_list~ and 
+the rest are a list of ~node id~, for example
+#+BEGIN_SRC lisp :load no
+(render-and-open-s-dot
+ "/tmp/edge1.pdf"
+ '((:-> ((arrowhead :diamond)
+         (color "#FF0000")
+         (headlabel "head\nlabel")
+         (label "red edge")
+         (labelfontname "Arial")
+         (fontname "courier")
+         (arrowsize 2))
+    node1
+    node2
+    node3)))
+#+END_SRC
+
+#+BEGIN_SRC lisp
+(defun format-edge-stmt (stmt)
+  (let ((edge-op (first stmt))
+        (attr-list (second stmt))
+        (list-of-node-id (cddr stmt)))
+    (iter (initially (format-node-id (first list-of-node-id)))
+          (for left-nodes on (cdr list-of-node-id))
+          (format *dot-stream* " ~a " edge-op)
+          (format-node-id (car left-nodes)))
+    (format-attr-list attr-list)))
+#+END_SRC
+** attribute statement
+#+begin_src bnf
+attr_stmt	:	(graph | node | edge) attr_list
+#+end_src
+In a dot s-expression, it starts with keyword ~:graph~, ~:node~, ~:edge~ , and the rest items
+in the list is the ~attr_list~(ref:attr-list),for example:
+#+begin_src lisp :load no
+(render-and-open-s-dot
+ "/tmp/node2.pdf" 
+ '((:node 
+    (:fillcolor "#AAFFAA")
+    (:shape :circle)
+    (:color "#0000AA")
+    (:style :filled)
+    (:fontsize 16))
+   (node1 (:id "a")(:label :test))))
+#+end_src
+
+#+BEGIN_SRC lisp
+(defun format-attr-stmt (stmt)
+  (format-id (car stmt))
+  (format-attr-list (cdr stmt)))
+#+END_SRC
+** attribute
+a single attribute can be applied to global environment in a statement,
+in a dot s-expression, it looks like this:
+#+BEGIN_SRC lisp :load no
+(render-and-open-s-dot
+ "/tmp/attr.pdf" 
+ '((= :compound t)
+   (node1 (:id :test)(:label :test))))
+#+END_SRC
+
+#+BEGIN_SRC lisp
+(defun format-attribute (stmt)
+  (let ((key (second stmt))
+        (value (third stmt)))
+    (format-id key)
+    (write-string " = " *dot-stream*)
+    (format-id value)))
+#+END_SRC
+** subgraph
+in a dot s-expression, it looks like this:
+#+BEGIN_SRC lisp
+(render-and-open-s-dot
+ "/tmp/subgraph.pdf" 
+ '((:subgraph nil 
+    (node1 (:id :test)(:label :test))
+    (node2 (:id :test2)(:label :test2))
+    (:-> nil node1 node2))))
+#+END_SRC
+
+#+BEGIN_SRC lisp
+(defun format-subgraph-stmt (stmt)
+  (let ((id (second stmt))
+        (stmt-list (cddr stmt)))
+    (write-string "subgraph " *dot-stream*)
+    (when id
+      (format-id id))
+    (format-stmt-list stmt-list)))
+#+END_SRC
+** id
+#+BEGIN_SRC lisp
+(defun format-id (id)
+  (typecase id
+    (string (format *dot-stream* "~s" id))
+    (t (cond ((eq id t)
+              (format *dot-stream* "true"))
+             ((eq id nil)
+              (format *dot-stream* "false"))
+             (t
+              (format *dot-stream* "~(~a~)" id))))))
+#+END_SRC
+** port
+Its bnf syntax is:
+#+begin_src bnf
+port	:	':' ID [ ':' compass_pt ]
+       |	':' compass_pt
+compass_pt	:	(n | ne | e | se | s | sw | w | nw | c | _)
+#+end_src
+In a dot s-expression, it looks like this:
+#+BEGIN_SRC lisp :load no
+(render-and-open-s-dot
+ "/tmp/port.pdf" 
+ '((:-> nil (node1 :e) node2)))
+#+END_SRC
+
+#+BEGIN_SRC lisp
+(defun format-port (port)
+  (write-string " : " *dot-stream*)
+  (cond ((atom port)
+         (format-id port))
+        (t
+         (let ((id (first port))
+               (compass-pt (second port)))
+           (format-id id)
+           (write-string " : " *dot-stream*)
+           (format-id compass-pt)))))
+#+END_SRC
+
+** attr list
+label:attr-list
+#+begin_src bnf
+attr_list	:	'[' [ a_list ] ']' [ attr_list ]
+a_list	:	ID '=' ID [ (';' | ',') ] [ a_list ]
+#+end_src
+In a s-expression, it is an association list like this:
+#+BEGIN_SRC lisp
+((:label "a label") (:shape :box))
+#+END_SRC
+
+#+BEGIN_SRC lisp
+(defun format-attr-list (attr-list)
+  (when attr-list
+    (iter (initially (format *dot-stream* " ["))
+          (for (key value) in attr-list)
+          (unless (first-iteration-p)
+            (write-string ", " *dot-stream*))
+          (format-id key)
+          (write-string " = " *dot-stream*)
+          (format-id value)
+          (finally (format *dot-stream* "]")))))
+#+END_SRC
+* Tests
+:PROPERTIES:
+:literate-load: test
+:END:
+** Preparation
+Now it's time to validate some functions.
+The [[https://common-lisp.net/project/fiveam/][FiveAM]] library is used to test.
+#+BEGIN_SRC lisp :load test
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (unless (find-package :fiveam)
+    #+quicklisp (ql:quickload :fiveam)
+    #-quicklisp (asdf:load-system :fiveam)))
+(5am:def-suite dot-suite :description "The test suite of dot.")
+(5am:in-suite dot-suite)
+#+END_SRC
+** node statement
+label:test-of-node-statement
+#+BEGIN_SRC lisp :load test
+(5am:test node-stmt
+  (5am:is (equal "digraph {
+  node1 [label = \"nice node\", shape = box, fontname = \"Arial\", fontcolor = \"#AA0000\"];
+}"
+                 (format-s-dot '((node1
+                                     (:label "nice node")
+                                     (:shape :box)
+                                     (:fontname "Arial")
+                                     (:fontcolor "#AA0000"))))))
+  )
+#+END_SRC
