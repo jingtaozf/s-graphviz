@@ -1,0 +1,9 @@
+// This file is generated automatically by s-dot.
+
+digraph {
+  subgraph cluster_1{
+    node1 [id = test, label = test];
+    node2 [id = test2, label = test2];
+    node1 -> node2;
+  };
+}

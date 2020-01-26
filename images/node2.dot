@@ -1,0 +1,6 @@
+// This file is generated automatically by s-dot.
+
+digraph {
+  node [fillcolor = "#AAFFAA", shape = circle, color = "#0000AA", style = filled, fontsize = 16];
+  node1 [id = "a", label = test];
+}

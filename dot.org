@@ -17,12 +17,16 @@
 - [[#preparation][Preparation]]
 - [[#language-presentation][Language presentation]]
   - [[#global-variables][global variables]]
+    - [[#the-encode-stream][the encode stream]]
+    - [[#the-indent-level][the indent level]]
+    - [[#the-default-size-for-indent-tab][the default size for indent tab]]
   - [[#how-to-render-a-dot-s-expression][how to render a dot s-expression]]
   - [[#how-to-format-a-dot-s-expression][how to format a dot s-expression]]
   - [[#graph][graph]]
   - [[#stmt-list][stmt-list]]
   - [[#stmt][stmt]]
   - [[#node-statement][node statement]]
+    - [[#node-id][node id]]
   - [[#edge-statement][edge statement]]
   - [[#attribute-statement][attribute statement]]
   - [[#attribute][attribute]]
@@ -53,10 +57,10 @@ We will use a lisp style to present the [[https://www.graphviz.org/doc/info/lang
 graph	:	[ strict ] (graph | digraph) [ ID ] '{' stmt_list '}'
 stmt_list	:	[ stmt [ ';' ] stmt_list ]
 stmt	:	node_stmt
-           |	edge_stmt
-           |	attr_stmt
-           |	ID '=' ID
-           |	subgraph
+|	edge_stmt
+|	attr_stmt
+|	ID '=' ID
+|	subgraph
 attr_stmt	:	(graph | node | edge) attr_list
 attr_list	:	'[' [ a_list ] ']' [ attr_list ]
 a_list	:	ID '=' ID [ (';' | ',') ] [ a_list ]
@@ -65,7 +69,7 @@ edgeRHS	:	edgeop (node_id | subgraph) [ edgeRHS ]
 node_stmt	:	node_id [ attr_list ]
 node_id	:	ID [ port ]
 port	:	':' ID [ ':' compass_pt ]
-       |	':' compass_pt
+|	':' compass_pt
 subgraph	:	[ subgraph [ ID ] ] '{' stmt_list '}'
 compass_pt	:	(n | ne | e | se | s | sw | w | nw | c | _)
 #+end_src
@@ -101,6 +105,7 @@ for example svg,  ps, gif, png, or jpg.
                                       :name (pathname-name file-name) :type "dot")))
     (with-open-file (stream dot-file-name :direction :output :if-exists :supersede
                             :if-does-not-exist :create)
+      (format stream "// This file is generated automatically by s-dot.~%~%")
       (format-s-dot statement-list :graph-type graph-type :id id :stream stream))
     (uiop:run-program (format nil "~a -o ~a ~a~a ~a"
                               dot-exe file-name dot-output-format-switch
@@ -111,9 +116,10 @@ for example svg,  ps, gif, png, or jpg.
 We will provide a helpful routine to render a dot s-expression and open it in Emacs.
 #+BEGIN_SRC lisp :load dev
 (defmacro render-and-open-s-dot (file-name &rest left-args)
-  `(progn
-     (render-s-dot ,file-name ,@left-args)
-     (swank:eval-in-emacs `(find-file ,,file-name) t)))
+  (let ((real-file-name (gensym "file-name")))
+    `(let ((,real-file-name (namestring ,file-name)))
+       (render-s-dot ,real-file-name ,@left-args)
+       (swank:eval-in-emacs `(find-file ,,real-file-name) t))))
 #+END_SRC
 
 
@@ -193,9 +199,12 @@ There are many different kinds of statements,let's recogize them one by one.
 If a statement starts without a known keyword, then it's a node statement,for example
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
- "/tmp/node1.pdf"
+ (merge-pathnames 
+  #p"images/node1.png" 
+  (asdf:component-pathname (asdf:find-system :dot)))
  '((node1 (:label "nice node") (:shape :box) (:fontname "Arial") (:fontcolor "#AA0000"))))
 #+END_SRC
+file:./images/node1.png
 
 #+BEGIN_SRC lisp
 (defun format-node-stmt (stmt)
@@ -228,7 +237,9 @@ In a s-expression, it's a list that starts with an ~edgeop~ and an ~attr_list~ a
 the rest are a list of ~node id~, for example
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
- "/tmp/edge1.pdf"
+ (merge-pathnames 
+  #p"images/edge1.png" 
+  (asdf:component-pathname (asdf:find-system :dot)))
  '((:-> ((arrowhead :diamond)
          (color "#FF0000")
          (headlabel "head\nlabel")
@@ -240,6 +251,7 @@ the rest are a list of ~node id~, for example
     node2
     node3)))
 #+END_SRC
+file:./images/edge1.png
 
 #+BEGIN_SRC lisp
 (defun format-edge-stmt (stmt)
@@ -260,7 +272,9 @@ In a dot s-expression, it starts with keyword ~:graph~, ~:node~, ~:edge~ , and t
 in the list is the ~attr_list~(ref:attr-list),for example:
 #+begin_src lisp :load no
 (render-and-open-s-dot
- "/tmp/node2.pdf"
+ (merge-pathnames 
+  #p"images/node2.png" 
+  (asdf:component-pathname (asdf:find-system :dot)))
  '((:node
     (:fillcolor "#AAFFAA")
     (:shape :circle)
@@ -269,6 +283,7 @@ in the list is the ~attr_list~(ref:attr-list),for example:
     (:fontsize 16))
    (node1 (:id "a")(:label :test))))
 #+end_src
+file:./images/node2.png
 
 #+BEGIN_SRC lisp
 (defun format-attr-stmt (stmt)
@@ -280,10 +295,13 @@ a single attribute can be applied to global environment in a statement,
 in a dot s-expression, it looks like this:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
- "/tmp/attr.pdf"
+ (merge-pathnames 
+  #p"images/attr.png" 
+  (asdf:component-pathname (asdf:find-system :dot)))
  '((= :compound t)
    (node1 (:id :test)(:label :test))))
 #+END_SRC
+file:./images/attr.png
 
 #+BEGIN_SRC lisp
 (defun format-attribute (stmt)
@@ -298,12 +316,16 @@ It a subgraph's name starts with "cluster", then it has a special meaning.
 in a dot s-expression, it looks like this:
 #+BEGIN_SRC lisp
 (render-and-open-s-dot
- "/tmp/subgraph.pdf"
+ (merge-pathnames 
+  #p"images/cluster1.png" 
+  (asdf:component-pathname (asdf:find-system :dot)))
  '((:subgraph cluster_1
     (node1 (:id :test)(:label :test))
     (node2 (:id :test2)(:label :test2))
     (:-> nil node1 node2))))
 #+END_SRC
+file:./images/cluster1.png
+
 #+BEGIN_SRC lisp
 (defun format-subgraph-stmt (stmt)
   (let ((id (second stmt))
@@ -339,9 +361,12 @@ compass_pt	:	(n | ne | e | se | s | sw | w | nw | c | _)
 In a dot s-expression, it looks like this:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
- "/tmp/port.pdf"
+ (merge-pathnames 
+  #p"images/port.png" 
+  (asdf:component-pathname (asdf:find-system :dot))) 
  '((:-> nil (node1 :e) node2)))
 #+END_SRC
+file:./images/port.png
 
 #+BEGIN_SRC lisp
 (defun format-port (port)

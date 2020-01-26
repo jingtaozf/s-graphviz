@@ -1,0 +1,6 @@
+// This file is generated automatically by s-dot.
+
+digraph {
+  compound = true;
+  node1 [id = test, label = test];
+}
