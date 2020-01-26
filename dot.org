@@ -204,7 +204,7 @@ If a statement starts without a known keyword, then it's a node statement,for ex
   (asdf:component-pathname (asdf:find-system :dot)))
  '((node1 (:label "nice node") (:shape :box) (:fontname "Arial") (:fontcolor "#AA0000"))))
 #+END_SRC
-file:./images/node1.png
+[[file:./images/node1.png]]
 
 #+BEGIN_SRC lisp
 (defun format-node-stmt (stmt)
@@ -251,7 +251,7 @@ the rest are a list of ~node id~, for example
     node2
     node3)))
 #+END_SRC
-file:./images/edge1.png
+[[file:./images/edge1.png]]
 
 #+BEGIN_SRC lisp
 (defun format-edge-stmt (stmt)
@@ -283,7 +283,7 @@ in the list is the ~attr_list~(ref:attr-list),for example:
     (:fontsize 16))
    (node1 (:id "a")(:label :test))))
 #+end_src
-file:./images/node2.png
+[[file:./images/node2.png]]
 
 #+BEGIN_SRC lisp
 (defun format-attr-stmt (stmt)
@@ -301,7 +301,7 @@ in a dot s-expression, it looks like this:
  '((= :compound t)
    (node1 (:id :test)(:label :test))))
 #+END_SRC
-file:./images/attr.png
+[[file:./images/attr.png]]
 
 #+BEGIN_SRC lisp
 (defun format-attribute (stmt)
@@ -324,7 +324,7 @@ in a dot s-expression, it looks like this:
     (node2 (:id :test2)(:label :test2))
     (:-> nil node1 node2))))
 #+END_SRC
-file:./images/cluster1.png
+[[file:./images/cluster1.png]]
 
 #+BEGIN_SRC lisp
 (defun format-subgraph-stmt (stmt)
@@ -366,7 +366,7 @@ In a dot s-expression, it looks like this:
   (asdf:component-pathname (asdf:find-system :dot))) 
  '((:-> nil (node1 :e) node2)))
 #+END_SRC
-file:./images/port.png
+[[file:./images/port.png]]
 
 #+BEGIN_SRC lisp
 (defun format-port (port)
