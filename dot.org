@@ -242,7 +242,7 @@ the rest are a list of ~node id~, for example
   (asdf:component-pathname (asdf:find-system :dot)))
  '((:-> ((arrowhead :diamond)
          (color "#FF0000")
-         (headlabel "head\nlabel")
+         (headlabel "head\\nlabel")
          (label "red edge")
          (labelfontname "Arial")
          (fontname "courier")
