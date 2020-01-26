@@ -44,7 +44,7 @@ Let's create an individual package for this module.
 #+BEGIN_SRC lisp
 (defpackage :dot
   (:use :common-lisp :iter)
-  (:export))
+  (:export :render-s-dot :format-s-dot))
 (in-package :dot)
 #+END_SRC
 * Language presentation
@@ -85,7 +85,7 @@ How many whitespaces will be written before printing current dot expression.
 (defvar *indent-tab-size* 2)
 #+END_SRC
 ** how to render a dot s-expression
-Renders a s-dot graph into a graphic file. 
+Renders a s-dot graph into a graphic file.
 ~file-name~ should be a pathname.
 If the file-name is ~/foo/bar.png~ , the dot file ~/foo/bar.dot~ is created
 and then rendered.
@@ -169,8 +169,11 @@ We will provide a helpful routine to render a dot s-expression and open it in Em
               (write-char #\Space *dot-stream*))
         (format-stmt stmt)
         (format *dot-stream* ";~%"))
+  (decf *indent-spaces* *indent-tab-size*)
+  (iter (repeat *indent-spaces*)
+        (write-char #\Space *dot-stream*))
   (format *dot-stream* "}")
-  (decf *indent-spaces* *indent-tab-size*))
+  )
 #+END_SRC
 
 ** stmt
@@ -187,10 +190,10 @@ There are many different kinds of statements,let's recogize them one by one.
 #+END_SRC
 ** node statement
 
-If a statement starts without a known keyword, then it's a node statement,for example 
+If a statement starts without a known keyword, then it's a node statement,for example
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
- "/tmp/node1.pdf" 
+ "/tmp/node1.pdf"
  '((node1 (:label "nice node") (:shape :box) (:fontname "Arial") (:fontcolor "#AA0000"))))
 #+END_SRC
 
@@ -221,7 +224,7 @@ In a s-expression, it can be a single id or a list contains both id and port.
 edge_stmt	:	(node_id | subgraph) edgeRHS [ attr_list ]
 edgeRHS	:	edgeop (node_id | subgraph) [ edgeRHS ]
 #+end_src
-In a s-expression, it's a list that starts with an ~edgeop~ and an ~attr_list~ and 
+In a s-expression, it's a list that starts with an ~edgeop~ and an ~attr_list~ and
 the rest are a list of ~node id~, for example
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
@@ -257,8 +260,8 @@ In a dot s-expression, it starts with keyword ~:graph~, ~:node~, ~:edge~ , and t
 in the list is the ~attr_list~(ref:attr-list),for example:
 #+begin_src lisp :load no
 (render-and-open-s-dot
- "/tmp/node2.pdf" 
- '((:node 
+ "/tmp/node2.pdf"
+ '((:node
     (:fillcolor "#AAFFAA")
     (:shape :circle)
     (:color "#0000AA")
@@ -277,7 +280,7 @@ a single attribute can be applied to global environment in a statement,
 in a dot s-expression, it looks like this:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
- "/tmp/attr.pdf" 
+ "/tmp/attr.pdf"
  '((= :compound t)
    (node1 (:id :test)(:label :test))))
 #+END_SRC
@@ -291,16 +294,16 @@ in a dot s-expression, it looks like this:
     (format-id value)))
 #+END_SRC
 ** subgraph
+It a subgraph's name starts with "cluster", then it has a special meaning.
 in a dot s-expression, it looks like this:
 #+BEGIN_SRC lisp
 (render-and-open-s-dot
- "/tmp/subgraph.pdf" 
- '((:subgraph nil 
+ "/tmp/subgraph.pdf"
+ '((:subgraph cluster_1
     (node1 (:id :test)(:label :test))
     (node2 (:id :test2)(:label :test2))
     (:-> nil node1 node2))))
 #+END_SRC
-
 #+BEGIN_SRC lisp
 (defun format-subgraph-stmt (stmt)
   (let ((id (second stmt))
@@ -314,7 +317,11 @@ in a dot s-expression, it looks like this:
 #+BEGIN_SRC lisp
 (defun format-id (id)
   (typecase id
-    (string (format *dot-stream* "~s" id))
+    (string
+     ;; To a string, we have to format it in `~a' to avoid escape special characters twice.
+     (write-char #\" *dot-stream*)
+     (format *dot-stream* "~a" id)
+     (write-char #\" *dot-stream*))
     (t (cond ((eq id t)
               (format *dot-stream* "true"))
              ((eq id nil)
@@ -332,7 +339,7 @@ compass_pt	:	(n | ne | e | se | s | sw | w | nw | c | _)
 In a dot s-expression, it looks like this:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
- "/tmp/port.pdf" 
+ "/tmp/port.pdf"
  '((:-> nil (node1 :e) node2)))
 #+END_SRC
 
