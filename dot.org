@@ -6,12 +6,6 @@
 #+STARTUP: inlineimages
 #+PROPERTY: literate-lang lisp
 #+PROPERTY: literate-load yes
-#+STARTUP: entitiespretty
-#+LATEX_HEADER: \RedeclareSectionCommand[tocnumwidth=2.6em]{section}
-#+LATEX_HEADER: \RedeclareSectionCommand[tocindent=4.1em,tocnumwidth=3.5em]{subsection}
-#+LATEX_HEADER: % copied from lstlang1.sty
-#+LATEX_HEADER: \lstdefinelanguage{elisp}[]{lisp} {}
-#+LATEX_HEADER: \lstloadlanguages{elisp}
 * Table of Contents                                            :noexport:TOC:
 - [[#introduction][Introduction]]
 - [[#preparation][Preparation]]
