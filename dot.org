@@ -151,7 +151,7 @@ We will provide a helpful routine to render a dot s-expression and open it in Em
 #+END_SRC
 
 ** stmt-list
-a graph is estiblished by a stmt_list.
+a graph is established by a stmt_list.
 We can also apply some global configuration in a ~stmt_list~ to limit their affection scope,for example:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
@@ -189,7 +189,7 @@ We can also apply some global configuration in a ~stmt_list~ to limit their affe
 #+END_SRC
 
 ** stmt
-There are many different kinds of statements,let's recogize them one by one.
+There are many different kinds of statements,let's recognize them one by one.
 
 #+BEGIN_SRC lisp
 (defun format-stmt (stmt)
@@ -365,7 +365,7 @@ in a dot s-expression, it looks like this:
               (format *dot-stream* "~(~a~)" id))))))
 #+END_SRC
 ** port
-Its bnf syntax is:
+Its BNF syntax is:
 #+begin_src bnf
 port	:	':' ID [ ':' compass_pt ]
        |	':' compass_pt

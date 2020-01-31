@@ -17,7 +17,7 @@
   - [[#a-cluster][a cluster]]
 
 * The S-DOT Language
-We have a similiar presentation with the original [[https://graphviz.gitlab.io/_pages/doc/info/lang.html][DOT Language]], but in a single list.
+We have a similar presentation with the original [[https://graphviz.gitlab.io/_pages/doc/info/lang.html][DOT Language]], but in a single list.
 #+begin_src lisp :load no
 (graph-type graph-id . graph-statement-list)
 #+end_src
@@ -50,7 +50,7 @@ This library created a new package named as ~:dot~, and it exports the following
 convert the S-DOT expression to a file can be read as the DOT Language.
 ** format-graph
 This function accepts a s-expression and a keyword ~:stream~.
-- The s-expression has the synat of the S-DOT Language.
+- The s-expression has the syntax of the S-DOT Language.
 - The stream is nil by default which means it will return a string which can be read as the DOT Language.
   if the stream is not nil, then the target string will be written into this stream directly.
 
@@ -74,8 +74,8 @@ This function is used to render a S-DOT expression to a image type,it accepts th
 - a ~file-name~ for the target image,it can be a string or a pathname.
 - a ~s-expression~ for the graph
 - a keyword ~format~ to indicate the image type, it is the file type of ~file-name~ by default.
-- a keyword ~dot-exe~ for the target dot application, it is ~dot~ defaultly.
-- a keyword ~dot-arguments~ for the additional dot arguments, it is null defaultly.
+- a keyword ~dot-exe~ for the target dot application, it is ~dot~ by default.
+- a keyword ~dot-arguments~ for the additional dot arguments, it is null by default.
 
 For example to render a S-DOT expression to a image file, we can run the following lisp expression.
 #+BEGIN_SRC lisp :load no
@@ -89,7 +89,7 @@ For example to render a S-DOT expression to a image file, we can run the followi
 #+end_SRC
 * Examples
 ** Preparation
-We will store all images in this section in the subdirection ~images~ 
+We will store all images in this section in the subdirectory ~images~ 
 #+BEGIN_SRC lisp :load no
 (defun render-dot-demo (name s-expression)
   (dot:render-graph
