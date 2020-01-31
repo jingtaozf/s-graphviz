@@ -16,6 +16,7 @@
   - [[#preparation][Preparation]]
   - [[#a-finite-state-machine][a finite state machine]]
   - [[#a-cluster][a cluster]]
+  - [[#add-compass-point-value-in-a-node-id][add compass point value in a node id]]
 
 * Introduction
 This is a S-expression presentation of [[http://www.graphviz.org/][AT&T GraphViz]].
@@ -51,7 +52,7 @@ We have a similar presentation with the original [[https://graphviz.gitlab.io/_p
   |---------------+------------------------------------+-----------------------------------------+--------------------------------------------|
 
 ~ID~ can be a lisp symbol or a string.
-If the ~ID~ is a symbol, it will be converted to a lowercase DOT symbol in order to prettify the 
+If the ~ID~ is a symbol, it will be converted to a lowercase DOT symbol in order to prettify the
 generated DOT file.
 
 * Exported Functions
@@ -99,7 +100,7 @@ For example to render a S-DOT expression to a image file, we can run the followi
 * Examples
 ** Preparation
 We will store all images in this section in the subdirectory ~images~
-#+BEGIN_SRC lisp :load no
+#+BEGIN_SRC lisp :load demo
 (defun render-dot-demo (name s-expression)
   (dot:render-graph
    (merge-pathnames
@@ -110,7 +111,7 @@ We will store all images in this section in the subdirectory ~images~
 
 ** a finite state machine
 The original example is [[https://graphviz.gitlab.io/_pages/Gallery/directed/fsm.html][here]].
-#+BEGIN_SRC lisp :load no
+#+BEGIN_SRC lisp :load demo
 (render-dot-demo
  "fsm"
  '(:digraph nil
@@ -137,7 +138,7 @@ The original example is [[https://graphviz.gitlab.io/_pages/Gallery/directed/fsm
 [[file:images/fsm.png]]
 ** a cluster
 The original example is [[https://graphviz.gitlab.io/_pages/Gallery/directed/cluster.html][here]].
-#+BEGIN_SRC lisp :load no
+#+BEGIN_SRC lisp :load demo
 (render-dot-demo
  "cluster2"
  '(:digraph nil
@@ -163,3 +164,12 @@ The original example is [[https://graphviz.gitlab.io/_pages/Gallery/directed/clu
    ))
 #+END_SRC
 [[file:./images/cluster2.png]]
+** add compass point value in a node id
+You can add a compass point value in any node id as you can in the original DOT Language, for example:
+#+BEGIN_SRC lisp :load demo
+(render-dot-demo
+ "port"
+ '(:digraph nil
+   (:-> nil (node1 :e) (node2 :s))))
+#+END_SRC
+[[file:./images/port.png]]
