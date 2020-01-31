@@ -1,5 +1,5 @@
 # -*- Mode: POLY-ORG ;-*- ---
-#+Title: a s-expression presentation of GraphViz DOT language
+#+Title: a S-expression presentation of GraphViz DOT language
 #+OPTIONS: tex:t toc:2 \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t
 #+STARTUP: latexpreview
 #+STARTUP: noindent
@@ -14,7 +14,7 @@
     - [[#the-encode-stream][the encode stream]]
     - [[#the-indent-level][the indent level]]
     - [[#the-default-size-for-indent-tab][the default size for indent tab]]
-  - [[#how-to-render-a-dot-s-expression][how to render a dot s-expression]]
+  - [[#how-to-render-a-dot-S-expression][how to render a DOT S-expression]]
   - [[#graph][graph]]
   - [[#stmt-list][stmt-list]]
   - [[#stmt][stmt]]
@@ -32,8 +32,8 @@
   - [[#node-statement-1][node statement]]
 
 * Introduction
-Dot is an S-Expression syntax for the input language of the 'Dot' graph drawing tool from the [[http://www.graphviz.org/][AT&T GraphViz]] suite.
-With Dot, you can render 'Dot' graphs from within Common Lisp.
+S-Dot is an S-Expression syntax for the input language of the 'Dot' graph drawing tool from the [[http://www.graphviz.org/][AT&T GraphViz]] suite.
+With S-Dot, you can render 'Dot' graphs from within Common Lisp.
 The idea of this package is from [[http://martin-loetzsch.de/S-DOT/][S-DOT]].
 
 * Preparation
@@ -68,12 +68,12 @@ compass_pt	:	(n | ne | e | se | s | sw | w | nw | c | _)
 #+end_src
 ** global variables
 *** the encode stream
-The encoded dot expressions will print to this stream.
+The encoded DOT expressions will print to this stream.
 #+BEGIN_SRC lisp
 (defvar *dot-stream*)
 #+END_SRC
 *** the indent level
-How many whitespaces will be written before printing current dot expression.
+How many whitespaces will be written before printing current DOT expression.
 #+BEGIN_SRC lisp
 (defvar *indent-spaces* 0)
 #+END_SRC
@@ -81,10 +81,10 @@ How many whitespaces will be written before printing current dot expression.
 #+BEGIN_SRC lisp
 (defvar *indent-tab-size* 2)
 #+END_SRC
-** how to render a dot s-expression
-Renders a s-dot graph into a graphic file.
+** how to render a DOT S-expression
+Renders a s-DOT graph into a graphic file.
 ~file-name~ should be a pathname.
-If the file-name is ~/foo/bar.png~ , the dot file ~/foo/bar.dot~ is created
+If the file-name is ~/foo/bar.png~ , the DOT file ~/foo/bar.dot~ is created
 and then rendered.
 Format should be one out of http://www.graphviz.org/doc/info/output.html,
 for example svg,  ps, gif, png, or jpg.
@@ -106,7 +106,7 @@ for example svg,  ps, gif, png, or jpg.
                       :ignore-error-status t)))
 #+END_SRC
 
-We will provide a helpful routine to render a dot s-expression and open it in Emacs.
+We will provide a helpful routine to render a DOT S-expression and open it in Emacs.
 #+BEGIN_SRC lisp :load dev
 (defmacro render-and-open-s-dot (file-name &rest left-args)
   (let ((real-file-name (gensym "file-name")))
@@ -226,7 +226,7 @@ If a statement starts without a known keyword, then it's a node statement,for ex
 #+begin_src bnf
 node_id	:	ID [ port ]
 #+end_src
-In a s-expression, it can be a single id or a list contains both id and port.
+In a S-expression, it can be a single id or a list contains both id and port.
 #+BEGIN_SRC lisp
 (defun format-node-id (id-port)
   (if (atom id-port)
@@ -242,7 +242,7 @@ In a s-expression, it can be a single id or a list contains both id and port.
 edge_stmt	:	(node_id | subgraph) edgeRHS [ attr_list ]
 edgeRHS	:	edgeop (node_id | subgraph) [ edgeRHS ]
 #+end_src
-In a s-expression, it's a list that starts with an ~edgeop~ and an ~attr_list~ and
+In a S-expression, it's a list that starts with an ~edgeop~ and an ~attr_list~ and
 the rest are a list of ~node id~, for example
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
@@ -278,7 +278,7 @@ the rest are a list of ~node id~, for example
 #+begin_src bnf
 attr_stmt	:	(graph | node | edge) attr_list
 #+end_src
-In a dot s-expression, it starts with keyword ~:graph~, ~:node~, ~:edge~ , and the rest items
+In a DOT S-expression, it starts with keyword ~:graph~, ~:node~, ~:edge~ , and the rest items
 in the list is the ~attr_list~(ref:attr-list),for example:
 #+begin_src lisp :load no
 (render-and-open-s-dot
@@ -303,7 +303,7 @@ in the list is the ~attr_list~(ref:attr-list),for example:
 #+END_SRC
 ** attribute
 a single attribute can be applied to global environment in a statement,
-in a dot s-expression, it looks like this:
+in a DOT S-expression, it looks like this:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
  (merge-pathnames
@@ -325,7 +325,7 @@ in a dot s-expression, it looks like this:
 #+END_SRC
 ** subgraph
 It a subgraph's name starts with "cluster", then it has a special meaning.
-in a dot s-expression, it looks like this:
+in a DOT S-expression, it looks like this:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
  (merge-pathnames
@@ -371,7 +371,7 @@ port	:	':' ID [ ':' compass_pt ]
        |	':' compass_pt
 compass_pt	:	(n | ne | e | se | s | sw | w | nw | c | _)
 #+end_src
-In a dot s-expression, it looks like this:
+In a DOT S-expression, it looks like this:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
  (merge-pathnames
@@ -401,7 +401,7 @@ label:attr-list
 attr_list	:	'[' [ a_list ] ']' [ attr_list ]
 a_list	:	ID '=' ID [ (';' | ',') ] [ a_list ]
 #+end_src
-In a s-expression, it is an association list like this:
+In a S-expression, it is an association list like this:
 #+BEGIN_SRC lisp :load no
 ((:label "a label") (:shape :box))
 #+END_SRC
@@ -430,7 +430,7 @@ The [[https://common-lisp.net/project/fiveam/][FiveAM]] library is used to test.
   (unless (find-package :fiveam)
     #+quicklisp (ql:quickload :fiveam)
     #-quicklisp (asdf:load-system :fiveam)))
-(5am:def-suite dot-suite :description "The test suite of dot.")
+(5am:def-suite dot-suite :description "The test suite of DOT.")
 (5am:in-suite dot-suite)
 #+END_SRC
 ** node statement

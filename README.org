@@ -1,5 +1,5 @@
 # -*- Mode: POLY-ORG ;-*- ---
-#+Title: a s-expression presentation of GraphViz DOT language
+#+Title: a S-expression presentation of GraphViz DOT language
 #+OPTIONS: tex:t toc:2 \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t
 #+STARTUP: latexpreview
 #+STARTUP: noindent
@@ -18,7 +18,7 @@
   - [[#a-cluster][a cluster]]
 
 * Introduction
-This is a s-expression presentation of [[http://www.graphviz.org/][AT&T GraphViz]].
+This is a S-expression presentation of [[http://www.graphviz.org/][AT&T GraphViz]].
 The original idea is from http://www.martin-loetzsch.de/S-DOT, but with a full compatiblity of original
 DOT syntax by following its [[https://www.graphviz.org/doc/info/lang.html][lang definition]].
 
@@ -55,8 +55,8 @@ We have a similar presentation with the original [[https://graphviz.gitlab.io/_p
 This library created a new package named as ~:dot~, and it exports the following functions to
 convert the S-DOT expression to a file can be read as the DOT Language.
 ** format-graph
-This function accepts a s-expression and a keyword ~:stream~.
-- The s-expression has the syntax of the S-DOT Language.
+This function accepts a S-expression and a keyword ~:stream~.
+- The S-expression has the syntax of the S-DOT Language.
 - The stream is nil by default which means it will return a string which can be read as the DOT Language.
   if the stream is not nil, then the target string will be written into this stream directly.
 
@@ -78,7 +78,7 @@ digraph {
 ** render-graph
 This function is used to render a S-DOT expression to a image type,it accepts the following arguments.
 - a ~file-name~ for the target image,it can be a string or a pathname.
-- a ~s-expression~ for the graph
+- a ~S-expression~ for the graph
 - a keyword ~format~ to indicate the image type, it is the file type of ~file-name~ by default.
 - a keyword ~dot-exe~ for the target dot application, it is ~dot~ by default.
 - a keyword ~dot-arguments~ for the additional dot arguments, it is null by default.
