@@ -1,5 +1,5 @@
 # -*- Mode: POLY-ORG ;-*- ---
-#+Title: a literate version of dot
+#+Title: a s-expression presentation of GraphViz DOT language
 #+OPTIONS: tex:t toc:2 \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t
 #+STARTUP: latexpreview
 #+STARTUP: noindent
@@ -7,6 +7,7 @@
 #+PROPERTY: literate-lang lisp
 #+PROPERTY: literate-load no
 * Table of Contents                                            :noexport:TOC:
+- [[#introduction][Introduction]]
 - [[#the-s-dot-language][The S-DOT Language]]
 - [[#exported-functions][Exported Functions]]
   - [[#format-graph][format-graph]]
@@ -15,6 +16,11 @@
   - [[#preparation][Preparation]]
   - [[#a-finite-state-machine][a finite state machine]]
   - [[#a-cluster][a cluster]]
+
+* Introduction
+This is a s-expression presentation of [[http://www.graphviz.org/][AT&T GraphViz]]. 
+The original idea is from http://www.martin-loetzsch.de/S-DOT, but with a full compatiblity of original
+DOT syntax by following its [[https://www.graphviz.org/doc/info/lang.html][lang definition]].
 
 * The S-DOT Language
 We have a similar presentation with the original [[https://graphviz.gitlab.io/_pages/doc/info/lang.html][DOT Language]], but in a single list.
