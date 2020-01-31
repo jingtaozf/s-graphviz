@@ -15,7 +15,6 @@
     - [[#the-indent-level][the indent level]]
     - [[#the-default-size-for-indent-tab][the default size for indent tab]]
   - [[#how-to-render-a-dot-s-expression][how to render a dot s-expression]]
-  - [[#how-to-format-a-dot-s-expression][how to format a dot s-expression]]
   - [[#graph][graph]]
   - [[#stmt-list][stmt-list]]
   - [[#stmt][stmt]]
@@ -42,7 +41,7 @@ Let's create an individual package for this module.
 #+BEGIN_SRC lisp
 (defpackage :dot
   (:use :common-lisp :iter)
-  (:export :render-s-dot :format-s-dot :format-graph))
+  (:export :render-graph :format-graph))
 (in-package :dot)
 #+END_SRC
 * Language presentation
@@ -90,20 +89,20 @@ and then rendered.
 Format should be one out of http://www.graphviz.org/doc/info/output.html,
 for example svg,  ps, gif, png, or jpg.
 #+BEGIN_SRC lisp
-(defun render-s-dot (file-name statement-list &key
+(defun render-graph (file-name s-expression &key
                                (format (pathname-type file-name))
                                (dot-exe "dot")
-                               (dot-output-format-switch "-T")
-                               (graph-type :digraph) id)
+                               (dot-options "")
+                               (dot-output-format-switch "-T"))
   (let ((dot-file-name (make-pathname :directory (pathname-directory file-name)
                                       :name (pathname-name file-name) :type "dot")))
     (with-open-file (stream dot-file-name :direction :output :if-exists :supersede
                             :if-does-not-exist :create)
-      (format stream "// This file is generated automatically by s-dot.~%~%")
-      (format-s-dot statement-list :graph-type graph-type :id id :stream stream))
-    (uiop:run-program (format nil "~a -o ~a ~a~a ~a"
+      (format stream "// This file is generated automatically by S-DOT.~%~%")
+      (format-graph s-expression :stream stream))
+    (uiop:run-program (format nil "~a -o ~a ~a~a ~a ~a"
                               dot-exe file-name dot-output-format-switch
-                              format dot-file-name)
+                              format dot-options dot-file-name)
                       :ignore-error-status t)))
 #+END_SRC
 
@@ -112,15 +111,8 @@ We will provide a helpful routine to render a dot s-expression and open it in Em
 (defmacro render-and-open-s-dot (file-name &rest left-args)
   (let ((real-file-name (gensym "file-name")))
     `(let ((,real-file-name (namestring ,file-name)))
-       (render-s-dot ,real-file-name ,@left-args)
+       (render-graph ,real-file-name ,@left-args)
        (swank:eval-in-emacs `(find-file ,,real-file-name) t))))
-#+END_SRC
-
-
-** how to format a dot s-expression
-#+BEGIN_SRC lisp
-(defun format-s-dot (statement-list &key (graph-type :digraph) id stream)
-  (format-graph (append (list graph-type id) statement-list) :stream stream))
 #+END_SRC
 
 ** graph
@@ -166,7 +158,8 @@ We can also apply some global configuration in a ~stmt_list~ to limit their affe
  (merge-pathnames 
   #p"images/statements.png" 
   (asdf:component-pathname (asdf:find-system :dot)))
- '((= :rankdir "LR")
+ '(:digraph nil
+   (= :rankdir "LR")
    (:-> nil a b c)
    (:-> nil d e f)
    (:-> nil b d)
@@ -174,8 +167,6 @@ We can also apply some global configuration in a ~stmt_list~ to limit their affe
     (= :rank :same)
     (b)
     (d)))
- ;; :graph-type :graph
- ;; :dot-exe "neato"
  )
 #+END_SRC
 
@@ -219,7 +210,8 @@ If a statement starts without a known keyword, then it's a node statement,for ex
  (merge-pathnames 
   #p"images/node1.png" 
   (asdf:component-pathname (asdf:find-system :dot)))
- '((node1 (:label "nice node") (:shape :box) (:fontname "Arial") (:fontcolor "#AA0000"))))
+ '(:digraph nil
+   (node1 (:label "nice node") (:shape :box) (:fontname "Arial") (:fontcolor "#AA0000"))))
 #+END_SRC
 [[file:./images/node1.png]]
 
@@ -257,7 +249,8 @@ the rest are a list of ~node id~, for example
  (merge-pathnames 
   #p"images/edge1.png" 
   (asdf:component-pathname (asdf:find-system :dot)))
- '((:-> ((arrowhead :diamond)
+ '(:digraph nil
+   (:-> ((arrowhead :diamond)
          (color "#FF0000")
          (headlabel "head\\nlabel")
          (label "red edge")
@@ -292,7 +285,8 @@ in the list is the ~attr_list~(ref:attr-list),for example:
  (merge-pathnames 
   #p"images/node2.png" 
   (asdf:component-pathname (asdf:find-system :dot)))
- '((:node
+ '(:digraph nil
+   (:node
     (:fillcolor "#AAFFAA")
     (:shape :circle)
     (:color "#0000AA")
@@ -315,7 +309,8 @@ in a dot s-expression, it looks like this:
  (merge-pathnames 
   #p"images/attr.png" 
   (asdf:component-pathname (asdf:find-system :dot)))
- '((= :compound t)
+ '(:digraph nil
+   (= :compound t)
    (node1 (:id :test)(:label :test))))
 #+END_SRC
 [[file:./images/attr.png]]
@@ -336,7 +331,8 @@ in a dot s-expression, it looks like this:
  (merge-pathnames 
   #p"images/cluster1.png" 
   (asdf:component-pathname (asdf:find-system :dot)))
- '((:subgraph cluster_1
+ '(:digraph nil
+   (:subgraph cluster_1
     (node1 (:id :test)(:label :test))
     (node2 (:id :test2)(:label :test2))
     (:-> nil node1 node2))))
@@ -381,7 +377,8 @@ In a dot s-expression, it looks like this:
  (merge-pathnames 
   #p"images/port.png" 
   (asdf:component-pathname (asdf:find-system :dot))) 
- '((:-> nil (node1 :e) node2)))
+ '(:digraph nil
+   (:-> nil (node1 :e) node2)))
 #+END_SRC
 [[file:./images/port.png]]
 
@@ -443,10 +440,11 @@ label:test-of-node-statement
   (5am:is (equal "digraph {
   node1 [label = \"nice node\", shape = box, fontname = \"Arial\", fontcolor = \"#AA0000\"];
 }"
-                 (format-s-dot '((node1
-                                     (:label "nice node")
-                                     (:shape :box)
-                                     (:fontname "Arial")
-                                     (:fontcolor "#AA0000"))))))
+                 (format-graph '(:digraph nil
+                                 (node1
+                                  (:label "nice node")
+                                  (:shape :box)
+                                  (:fontname "Arial")
+                                  (:fontcolor "#AA0000"))))))
   )
 #+END_SRC

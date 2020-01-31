@@ -1,0 +1,26 @@
+// This file is generated automatically by s-dot.
+
+digraph {
+  rankdir = "LR";
+  size = "8,5";
+  node [shape = doublecircle];
+  lr_0;
+  lr_3;
+  lr_4;
+  lr_8;
+  node [shape = circle];
+  lr_0 -> lr_2 [label = "SS(B)"];
+  lr_0 -> lr_1 [label = "SS(S)"];
+  lr_1 -> lr_3 [label = "S($end)"];
+  lr_2 -> lr_6 [label = "SS(b)"];
+  lr_2 -> lr_5 [label = "SS(a)"];
+  lr_2 -> lr_4 [label = "S(A)"];
+  lr_5 -> lr_7 [label = "S(b)"];
+  lr_5 -> lr_5 [label = "S(a)"];
+  lr_6 -> lr_6 [label = "S(b)"];
+  lr_6 -> lr_5 [label = "S(a)"];
+  lr_7 -> lr_8 [label = "S(b)"];
+  lr_7 -> lr_5 [label = "S(a)"];
+  lr_8 -> lr_6 [label = "S(b)"];
+  lr_8 -> lr_5 [label = "S(a)"];
+}

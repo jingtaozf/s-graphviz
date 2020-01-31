@@ -5,8 +5,152 @@
 #+STARTUP: noindent
 #+STARTUP: inlineimages
 #+PROPERTY: literate-lang lisp
-#+PROPERTY: literate-load yes
+#+PROPERTY: literate-load no
 * Table of Contents                                            :noexport:TOC:
 - [[#the-s-dot-language][The S-DOT Language]]
+- [[#exported-functions][Exported Functions]]
+  - [[#format-graph][format-graph]]
+  - [[#render-graph][render-graph]]
+- [[#examples][Examples]]
+  - [[#preparation][Preparation]]
+  - [[#a-finite-state-machine][a finite state machine]]
+  - [[#a-cluster][a cluster]]
 
 * The S-DOT Language
+We have a similiar presentation with the original [[https://graphviz.gitlab.io/_pages/doc/info/lang.html][DOT Language]], but in a single list.
+#+begin_src lisp :load no
+(graph-type graph-id . graph-statement-list)
+#+end_src
+- ~graph-type~ can be any of the following items.
+#+title valid graph type
+|--------+----------+------------------+---------------------|
+| :graph | :digraph | (:strict :graph) | (:strict :subgraph) |
+|--------+----------+------------------+---------------------|
+- ~graph-id~ can be nil or any valid lisp atom.
+- ~graph-statement-list~ is a list of statements for this graph. \\
+  each statement is a list that first element in it can indicate the type of this statement.
+  #+title valid statement type
+  |---------------+------------------------------------+-----------------------------------------+--------------------------------------------|
+  | first element | statement type                     | syntax                                  | Example                                    |
+  |---------------+------------------------------------+-----------------------------------------+--------------------------------------------|
+  | =             | a assignment of a single attribute | (= key value)                           | (= :rank :same)                            |
+  | :->           | a directed edge                    | (:-> attribute-list node1 node2 ...)    | (:-> ((:arrowsize 2)) a b c)               |
+  | :--           | a undirected edge                  | (:-- attribute-list node1 node2 ...)    | (:-- ((:arrowsize 2)) a b c)               |
+  | :graph        | attributes for a graph             | (:graph . attribute-list)               | (:graph (:shape :circle) (:style :filled)) |
+  | :node         | attributes for a node              | (:node . attribute-list)                | (:node (:shape :circle) (:style :filled))  |
+  | :edge         | attributes for a edge              | (:edge . attribute-list)                | (:edge (:shape :circle) (:style :filled))  |
+  | :{}           | a new statement list               | (:{} . graph-statement-list)            | (:{} (= :rank :same) (b) (d))              |
+  | :subgraph     | a subgraph                         | (:subgraph ID . subgraph-statement-list | (:subgraph cluster_1 (:-> () node1 node2)) |
+  | other atom    | a node statement                   | (node-id . attribute-list)              | (node1 (:label "nice node") (:shape :box)) |
+  |---------------+------------------------------------+-----------------------------------------+--------------------------------------------|
+
+  
+* Exported Functions
+This library created a new package named as ~:dot~, and it exports the following functions to
+convert the S-DOT expression to a file can be read as the DOT Language.
+** format-graph
+This function accepts a s-expression and a keyword ~:stream~.
+- The s-expression has the synat of the S-DOT Language.
+- The stream is nil by default which means it will return a string which can be read as the DOT Language.
+  if the stream is not nil, then the target string will be written into this stream directly.
+
+  For example, the following lisp expression
+#+BEGIN_SRC lisp :load no
+(dot:format-graph '(:digraph nil
+                    (node1
+                     (:label "nice node")
+                     (:shape :box)
+                     (:fontname "Arial")
+                     (:fontcolor "#AA0000"))))
+#+END_SRC
+Will return the following string
+#+begin_src dot
+digraph {
+  node1 [label = "nice node", shape = box, fontname = "Arial", fontcolor = "#AA0000"];
+}
+#+end_src
+** render-graph
+This function is used to render a S-DOT expression to a image type,it accepts the following arguments.
+- a ~file-name~ for the target image,it can be a string or a pathname.
+- a ~s-expression~ for the graph
+- a keyword ~format~ to indicate the image type, it is the file type of ~file-name~ by default.
+- a keyword ~dot-exe~ for the target dot application, it is ~dot~ defaultly.
+- a keyword ~dot-arguments~ for the additional dot arguments, it is null defaultly.
+
+For example to render a S-DOT expression to a image file, we can run the following lisp expression.
+#+BEGIN_SRC lisp :load no
+(dot:render-graph "/tmp/test1.png"
+                  '(:digraph ()
+                    (= :rankdir "LR")
+                    (:-> nil a b c)
+                    (:-> nil d e f)
+                    (:-> nil b d)
+                    (:{} (= :rank :same) (b) (d))))
+#+end_SRC
+* Examples
+** Preparation
+We will store all images in this section in the subdirection ~images~ 
+#+BEGIN_SRC lisp :load no
+(defun render-dot-demo (name s-expression)
+  (dot:render-graph
+   (merge-pathnames 
+    (format nil "images/~a.png" name)
+    (asdf:component-pathname (asdf:find-system :dot))) 
+   s-expression))
+#+END_SRC
+
+** a finite state machine
+The original example is [[https://graphviz.gitlab.io/_pages/Gallery/directed/fsm.html][here]].
+#+BEGIN_SRC lisp :load no
+(render-dot-demo
+ "fsm"
+ '(:digraph nil
+   (= :rankdir "LR")
+   (= :size "8,5")
+   (:node (:shape :doublecircle)) (LR_0) (LR_3) (LR_4) (LR_8)
+   (:node (:shape :circle))
+   (:-> ((:label "SS(B)")) LR_0 LR_2)
+   (:-> ((:label "SS(S)")) LR_0 LR_1)
+   (:-> ((:label "S($end)")) LR_1 LR_3)
+   (:-> ((:label "SS(b)")) LR_2 LR_6)
+   (:-> ((:label "SS(a)")) LR_2 LR_5)
+   (:-> ((:label "S(A)")) LR_2 LR_4)
+   (:-> ((:label "S(b)")) LR_5 LR_7)
+   (:-> ((:label "S(a)")) LR_5 LR_5)
+   (:-> ((:label "S(b)")) LR_6 LR_6)
+   (:-> ((:label "S(a)")) LR_6 LR_5)
+   (:-> ((:label "S(b)")) LR_7 LR_8)
+   (:-> ((:label "S(a)")) LR_7 LR_5)
+   (:-> ((:label "S(b)")) LR_8 LR_6)
+   (:-> ((:label "S(a)")) LR_8 LR_5)
+   ))
+#+END_SRC
+[[file:images/fsm.png]]
+** a cluster
+The original example is [[https://graphviz.gitlab.io/_pages/Gallery/directed/cluster.html][here]].
+#+BEGIN_SRC lisp :load no
+(render-dot-demo
+ "cluster2"
+ '(:digraph nil
+   (:subgraph :cluster_0
+    (= :style :filled)
+    (:node (:style :filled) (:color :white))
+    (:-> () a0 a1 a2 a3)
+    (= :label "process #1"))
+   (:subgraph :cluster_1
+    (:node (:style :filled))
+    (:-> () b0 b1 b2 b3)
+    (= :label "process #2")
+    (= :color :blue))
+   (:-> () start a0)
+   (:-> () start b0)
+   (:-> () a1 b3)
+   (:-> () b2 a3)
+   (:-> () a3 a0)
+   (:-> () a3 end)
+   (:-> () b3 end)
+   (start (:shape "Mdiamond"))
+   (end (:shape "Msquare"))
+   ))
+#+END_SRC
+[[file:./images/cluster2.png]]
