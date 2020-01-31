@@ -1,5 +1,5 @@
-// This file is generated automatically by s-dot.
+// This file is generated automatically by S-DOT.
 
 digraph {
-  node1 : e -> node2;
+  node1 : e -> node2 : s;
 }

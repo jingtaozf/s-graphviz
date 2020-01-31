@@ -14,7 +14,7 @@
     - [[#the-encode-stream][the encode stream]]
     - [[#the-indent-level][the indent level]]
     - [[#the-default-size-for-indent-tab][the default size for indent tab]]
-  - [[#how-to-render-a-dot-S-expression][how to render a DOT S-expression]]
+  - [[#how-to-render-a-dot-s-expression][how to render a DOT S-expression]]
   - [[#graph][graph]]
   - [[#stmt-list][stmt-list]]
   - [[#stmt][stmt]]
@@ -378,7 +378,7 @@ In a DOT S-expression, it looks like this:
   #p"images/port.png"
   (asdf:component-pathname (asdf:find-system :dot)))
  '(:digraph nil
-   (:-> nil (node1 :e) node2)))
+   (:-> nil (node1 :e) (node2 :s))))
 #+END_SRC
 [[file:./images/port.png]]
 
