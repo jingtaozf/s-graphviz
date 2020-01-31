@@ -1,5 +1,5 @@
 # -*- Mode: POLY-ORG ;-*- ---
-#+Title: a literate version of dot
+#+Title: a s-expression presentation of GraphViz DOT language
 #+OPTIONS: tex:t toc:2 \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t
 #+STARTUP: latexpreview
 #+STARTUP: noindent
@@ -42,7 +42,7 @@ Let's create an individual package for this module.
 #+BEGIN_SRC lisp
 (defpackage :dot
   (:use :common-lisp :iter)
-  (:export :render-s-dot :format-s-dot))
+  (:export :render-s-dot :format-s-dot :format-graph))
 (in-package :dot)
 #+END_SRC
 * Language presentation
@@ -120,11 +120,7 @@ We will provide a helpful routine to render a dot s-expression and open it in Em
 ** how to format a dot s-expression
 #+BEGIN_SRC lisp
 (defun format-s-dot (statement-list &key (graph-type :digraph) id stream)
-  (let ((*dot-stream* (or stream
-                          (make-string-output-stream))))
-    (format-graph (append (list graph-type id) statement-list))
-    (when (null stream)
-      (get-output-stream-string *dot-stream*))))
+  (format-graph (append (list graph-type id) statement-list) :stream stream))
 #+END_SRC
 
 ** graph
@@ -139,11 +135,13 @@ We will provide a helpful routine to render a dot s-expression and open it in Em
 - the second item in top expression will be the graph ~ID~ if not null.
 - the left items in top expression are the ~stmt_list~ for this graph.
 #+BEGIN_SRC lisp
-(defun format-graph (s-expression)
+(defun format-graph (s-expression &key stream)
   (let ((graph-type (car s-expression))
         (id (second s-expression))
         (stmt-list (cddr s-expression))
-        (*indent-spaces* 0))
+        (*indent-spaces* 0)
+        (*dot-stream* (or stream
+                          (make-string-output-stream))))
     ;; check graph type.
     (unless (find graph-type *valid-graph-predicates* :test #'equal)
       (error "The dot graph must be a 'graph' or a 'digraph'!"))
@@ -155,10 +153,33 @@ We will provide a helpful routine to render a dot s-expression and open it in Em
     (when id
       (format-id id))
 
-    (format-stmt-list stmt-list)))
+    (format-stmt-list stmt-list)
+    (when (null stream)
+      (get-output-stream-string *dot-stream*))))
 #+END_SRC
 
 ** stmt-list
+a graph is estiblished by a stmt_list.
+We can also apply some global configuration in a ~stmt_list~ to limit their affection scope,for example:
+#+BEGIN_SRC lisp :load no
+(render-and-open-s-dot
+ (merge-pathnames 
+  #p"images/statements.png" 
+  (asdf:component-pathname (asdf:find-system :dot)))
+ '((= :rankdir "LR")
+   (:-> nil a b c)
+   (:-> nil d e f)
+   (:-> nil b d)
+   (:{}
+    (= :rank :same)
+    (b)
+    (d)))
+ ;; :graph-type :graph
+ ;; :dot-exe "neato"
+ )
+#+END_SRC
+
+
 #+BEGIN_SRC lisp
 (defun format-stmt-list (stmt-list)
   (format *dot-stream* "{~%")
@@ -184,10 +205,12 @@ There are many different kinds of statements,let's recogize them one by one.
   (case (car stmt)
     ((:-> :--) (format-edge-stmt stmt))
     ((:graph :node :edge) (format-attr-stmt stmt))
-    (= (format-attribute stmt))
+    ((:= =) (format-attribute stmt))
+    (({ :{ :{}) (format-stmt-list (cdr stmt)))
     (:subgraph (format-subgraph-stmt stmt))
     (otherwise (format-node-stmt stmt))))
 #+END_SRC
+
 ** node statement
 
 If a statement starts without a known keyword, then it's a node statement,for example
@@ -308,7 +331,7 @@ in a dot s-expression, it looks like this:
 ** subgraph
 It a subgraph's name starts with "cluster", then it has a special meaning.
 in a dot s-expression, it looks like this:
-#+BEGIN_SRC lisp
+#+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
  (merge-pathnames 
   #p"images/cluster1.png" 
@@ -382,7 +405,7 @@ attr_list	:	'[' [ a_list ] ']' [ attr_list ]
 a_list	:	ID '=' ID [ (';' | ',') ] [ a_list ]
 #+end_src
 In a s-expression, it is an association list like this:
-#+BEGIN_SRC lisp
+#+BEGIN_SRC lisp :load no
 ((:label "a label") (:shape :box))
 #+END_SRC
 

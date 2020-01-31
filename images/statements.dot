@@ -1,0 +1,13 @@
+// This file is generated automatically by s-dot.
+
+digraph {
+  rankdir = "LR";
+  a -> b -> c;
+  d -> e -> f;
+  b -> d;
+  {
+    rank = same;
+    b;
+    d;
+  };
+}

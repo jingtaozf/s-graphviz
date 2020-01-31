@@ -1,3 +1,12 @@
-This is a s-expression presentation of [[http://www.graphviz.org/][AT&T GraphViz]]. 
-The original idea is from http://www.martin-loetzsch.de/S-DOT, but with a full compatiblity of original
-dot syntax by following its [[https://www.graphviz.org/doc/info/lang.html][lang definition]].
+# -*- Mode: POLY-ORG ;-*- ---
+#+Title: a literate version of dot
+#+OPTIONS: tex:t toc:2 \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t
+#+STARTUP: latexpreview
+#+STARTUP: noindent
+#+STARTUP: inlineimages
+#+PROPERTY: literate-lang lisp
+#+PROPERTY: literate-load yes
+* Table of Contents                                            :noexport:TOC:
+- [[#the-s-dot-language][The S-DOT Language]]
+
+* The S-DOT Language
