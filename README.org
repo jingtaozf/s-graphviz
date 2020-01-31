@@ -50,6 +50,9 @@ We have a similar presentation with the original [[https://graphviz.gitlab.io/_p
   | other atom    | a node statement                   | (node-id . attribute-list)              | (node1 (:label "nice node") (:shape :box)) |
   |---------------+------------------------------------+-----------------------------------------+--------------------------------------------|
 
+~ID~ can be a lisp symbol or a string.
+If the ~ID~ is a symbol, it will be converted to a lowercase DOT symbol in order to prettify the 
+generated DOT file.
 
 * Exported Functions
 This library created a new package named as ~:dot~, and it exports the following functions to
