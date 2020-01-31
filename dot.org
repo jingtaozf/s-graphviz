@@ -155,8 +155,8 @@ a graph is established by a stmt_list.
 We can also apply some global configuration in a ~stmt_list~ to limit their affection scope,for example:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
- (merge-pathnames 
-  #p"images/statements.png" 
+ (merge-pathnames
+  #p"images/statements.png"
   (asdf:component-pathname (asdf:find-system :dot)))
  '(:digraph nil
    (= :rankdir "LR")
@@ -207,8 +207,8 @@ There are many different kinds of statements,let's recognize them one by one.
 If a statement starts without a known keyword, then it's a node statement,for example
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
- (merge-pathnames 
-  #p"images/node1.png" 
+ (merge-pathnames
+  #p"images/node1.png"
   (asdf:component-pathname (asdf:find-system :dot)))
  '(:digraph nil
    (node1 (:label "nice node") (:shape :box) (:fontname "Arial") (:fontcolor "#AA0000"))))
@@ -246,8 +246,8 @@ In a s-expression, it's a list that starts with an ~edgeop~ and an ~attr_list~ a
 the rest are a list of ~node id~, for example
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
- (merge-pathnames 
-  #p"images/edge1.png" 
+ (merge-pathnames
+  #p"images/edge1.png"
   (asdf:component-pathname (asdf:find-system :dot)))
  '(:digraph nil
    (:-> ((arrowhead :diamond)
@@ -282,8 +282,8 @@ In a dot s-expression, it starts with keyword ~:graph~, ~:node~, ~:edge~ , and t
 in the list is the ~attr_list~(ref:attr-list),for example:
 #+begin_src lisp :load no
 (render-and-open-s-dot
- (merge-pathnames 
-  #p"images/node2.png" 
+ (merge-pathnames
+  #p"images/node2.png"
   (asdf:component-pathname (asdf:find-system :dot)))
  '(:digraph nil
    (:node
@@ -306,8 +306,8 @@ a single attribute can be applied to global environment in a statement,
 in a dot s-expression, it looks like this:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
- (merge-pathnames 
-  #p"images/attr.png" 
+ (merge-pathnames
+  #p"images/attr.png"
   (asdf:component-pathname (asdf:find-system :dot)))
  '(:digraph nil
    (= :compound t)
@@ -328,8 +328,8 @@ It a subgraph's name starts with "cluster", then it has a special meaning.
 in a dot s-expression, it looks like this:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
- (merge-pathnames 
-  #p"images/cluster1.png" 
+ (merge-pathnames
+  #p"images/cluster1.png"
   (asdf:component-pathname (asdf:find-system :dot)))
  '(:digraph nil
    (:subgraph cluster_1
@@ -374,9 +374,9 @@ compass_pt	:	(n | ne | e | se | s | sw | w | nw | c | _)
 In a dot s-expression, it looks like this:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-dot
- (merge-pathnames 
-  #p"images/port.png" 
-  (asdf:component-pathname (asdf:find-system :dot))) 
+ (merge-pathnames
+  #p"images/port.png"
+  (asdf:component-pathname (asdf:find-system :dot)))
  '(:digraph nil
    (:-> nil (node1 :e) node2)))
 #+END_SRC

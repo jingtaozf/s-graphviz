@@ -18,7 +18,7 @@
   - [[#a-cluster][a cluster]]
 
 * Introduction
-This is a s-expression presentation of [[http://www.graphviz.org/][AT&T GraphViz]]. 
+This is a s-expression presentation of [[http://www.graphviz.org/][AT&T GraphViz]].
 The original idea is from http://www.martin-loetzsch.de/S-DOT, but with a full compatiblity of original
 DOT syntax by following its [[https://www.graphviz.org/doc/info/lang.html][lang definition]].
 
@@ -50,7 +50,7 @@ We have a similar presentation with the original [[https://graphviz.gitlab.io/_p
   | other atom    | a node statement                   | (node-id . attribute-list)              | (node1 (:label "nice node") (:shape :box)) |
   |---------------+------------------------------------+-----------------------------------------+--------------------------------------------|
 
-  
+
 * Exported Functions
 This library created a new package named as ~:dot~, and it exports the following functions to
 convert the S-DOT expression to a file can be read as the DOT Language.
@@ -95,13 +95,13 @@ For example to render a S-DOT expression to a image file, we can run the followi
 #+end_SRC
 * Examples
 ** Preparation
-We will store all images in this section in the subdirectory ~images~ 
+We will store all images in this section in the subdirectory ~images~
 #+BEGIN_SRC lisp :load no
 (defun render-dot-demo (name s-expression)
   (dot:render-graph
-   (merge-pathnames 
+   (merge-pathnames
     (format nil "images/~a.png" name)
-    (asdf:component-pathname (asdf:find-system :dot))) 
+    (asdf:component-pathname (asdf:find-system :dot)))
    s-expression))
 #+END_SRC
 
