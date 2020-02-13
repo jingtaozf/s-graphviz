@@ -2,13 +2,13 @@
 (in-package :asdf)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (unless (find-package :dot.system)
-    (defpackage :dot.system
+  (unless (find-package :s-graphviz.system)
+    (defpackage :s-graphviz.system
       (:use :cl :asdf))))
 
-(in-package :dot.system)
+(in-package :s-graphviz.system)
 
-(asdf:defsystem dot
+(asdf:defsystem s-graphviz
   :author "Xu Jingtao <jingtaozf@gmail.com>"
   :version "2.0"
   :licence "MIT"
@@ -17,4 +17,4 @@
   :defsystem-depends-on ("literate-lisp")
   :depends-on ((:version :iterate "1.5"))
   :components ((:module :demo :pathname "./"
-                        :components ((:org "dot")))))
+                        :components ((:org "s-graphviz")))))

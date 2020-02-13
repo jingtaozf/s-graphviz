@@ -1,4 +1,4 @@
-// This file is generated automatically by s-dot.
+// This file is generated automatically by S-GRAPHVIZ.
 
 digraph {
   node1 -> node2 -> node3 [arrowhead = diamond, color = "#FF0000", headlabel = "head\nlabel", label = "red edge", labelfontname = "Arial", fontname = "courier", arrowsize = 2];

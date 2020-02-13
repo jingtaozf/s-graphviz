@@ -1,4 +1,4 @@
-// This file is generated automatically by S-DOT.
+// This file is generated automatically by S-GRAPHVIZ.
 
 digraph {
   node1 : e -> node2 : s;

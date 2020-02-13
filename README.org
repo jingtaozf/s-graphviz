@@ -8,7 +8,7 @@
 #+PROPERTY: literate-load no
 * Table of Contents                                            :noexport:TOC:
 - [[#introduction][Introduction]]
-- [[#the-s-dot-language][The S-DOT Language]]
+- [[#the-s-graphviz-language][The S-Graphviz Language]]
 - [[#exported-functions][Exported Functions]]
   - [[#format-graph][format-graph]]
   - [[#render-graph][render-graph]]
@@ -23,7 +23,7 @@ This is a S-expression presentation of [[http://www.graphviz.org/][AT&T GraphViz
 The original idea is from http://www.martin-loetzsch.de/S-DOT, but with a full compatiblity of original
 DOT syntax by following its [[https://www.graphviz.org/doc/info/lang.html][lang definition]].
 
-* The S-DOT Language
+* The S-Graphviz Language
 We have a similar presentation with the original [[https://graphviz.gitlab.io/_pages/doc/info/lang.html][DOT Language]], but in a single list.
 #+begin_src lisp :load no
 (graph-type graph-id . graph-statement-list)
@@ -57,16 +57,16 @@ generated DOT file.
 
 * Exported Functions
 This library created a new package named as ~:dot~, and it exports the following functions to
-convert the S-DOT expression to a file can be read as the DOT Language.
+convert the S-Graphviz expression to a file can be read as the DOT Language.
 ** format-graph
 This function accepts a S-expression and a keyword ~:stream~.
-- The S-expression has the syntax of the S-DOT Language.
+- The S-expression has the syntax of the S-Graphviz Language.
 - The stream is nil by default which means it will return a string which can be read as the DOT Language.
   if the stream is not nil, then the target string will be written into this stream directly.
 
   For example, the following lisp expression
 #+BEGIN_SRC lisp :load no
-(dot:format-graph '(:digraph nil
+(graphviz:format-graph '(:digraph nil
                     (node1
                      (:label "nice node")
                      (:shape :box)
@@ -80,16 +80,16 @@ digraph {
 }
 #+end_src
 ** render-graph
-This function is used to render a S-DOT expression to a image type,it accepts the following arguments.
+This function is used to render a S-Graphviz expression to a image type,it accepts the following arguments.
 - a ~file-name~ for the target image,it can be a string or a pathname.
 - a ~S-expression~ for the graph
 - a keyword ~format~ to indicate the image type, it is the file type of ~file-name~ by default.
 - a keyword ~dot-exe~ for the target dot application, it is ~dot~ by default.
 - a keyword ~dot-arguments~ for the additional dot arguments, it is null by default.
 
-For example to render a S-DOT expression to a image file, we can run the following lisp expression.
+For example to render a S-Graphviz expression to a image file, we can run the following lisp expression.
 #+BEGIN_SRC lisp :load no
-(dot:render-graph "/tmp/test1.png"
+(graphviz:render-graph "/tmp/test1.png"
                   '(:digraph ()
                     (= :rankdir "LR")
                     (:-> nil a b c)
@@ -101,18 +101,18 @@ For example to render a S-DOT expression to a image file, we can run the followi
 ** Preparation
 We will store all images in this section in the subdirectory ~images~
 #+BEGIN_SRC lisp :load demo
-(defun render-dot-demo (name s-expression)
-  (dot:render-graph
+(defun render-graphviz-demo (name s-expression)
+  (graphviz:render-graph
    (merge-pathnames
     (format nil "images/~a.png" name)
-    (asdf:component-pathname (asdf:find-system :dot)))
+    (asdf:component-pathname (asdf:find-system :s-graphviz)))
    s-expression))
 #+END_SRC
 
 ** a finite state machine
 The original example is [[https://graphviz.gitlab.io/_pages/Gallery/directed/fsm.html][here]].
 #+BEGIN_SRC lisp :load demo
-(render-dot-demo
+(render-graphviz-demo
  "fsm"
  '(:digraph nil
    (= :rankdir "LR")
@@ -139,7 +139,7 @@ The original example is [[https://graphviz.gitlab.io/_pages/Gallery/directed/fsm
 ** a cluster
 The original example is [[https://graphviz.gitlab.io/_pages/Gallery/directed/cluster.html][here]].
 #+BEGIN_SRC lisp :load demo
-(render-dot-demo
+(render-graphviz-demo
  "cluster2"
  '(:digraph nil
    (:subgraph :cluster_0
@@ -167,7 +167,7 @@ The original example is [[https://graphviz.gitlab.io/_pages/Gallery/directed/clu
 ** add compass point value in a node id
 You can add a compass point value in any node id as you can in the original DOT Language, for example:
 #+BEGIN_SRC lisp :load demo
-(render-dot-demo
+(render-graphviz-demo
  "port"
  '(:digraph nil
    (:-> nil (node1 :e) (node2 :s))))
