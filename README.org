@@ -1,5 +1,5 @@
 # -*- Mode: POLY-ORG ;-*- ---
-#+Title: a S-expression presentation of GraphViz DOT language
+#+Title: an S-expression presentation of GraphViz DOT language
 #+OPTIONS: tex:t toc:2 \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t
 #+STARTUP: latexpreview
 #+STARTUP: noindent
@@ -19,9 +19,9 @@
   - [[#add-compass-point-value-in-a-node-id][add compass point value in a node id]]
 
 * Introduction
-This is a S-expression presentation of [[http://www.graphviz.org/][AT&T GraphViz]].
+This is an S-expression presentation of [[http://www.graphviz.org/][AT&T GraphViz]].
 The original idea is from http://www.martin-loetzsch.de/S-DOT, but with a full compatiblity of original
-DOT syntax by following its [[https://www.graphviz.org/doc/info/lang.html][lang definition]].
+DOT syntax by following its [[https://www.graphviz.org/doc/info/lang.html][language definition]].
 
 * The S-Graphviz Language
 We have a similar presentation with the original [[https://graphviz.gitlab.io/_pages/doc/info/lang.html][DOT Language]], but in a single list.
@@ -40,14 +40,14 @@ We have a similar presentation with the original [[https://graphviz.gitlab.io/_p
   |---------------+------------------------------------+-----------------------------------------+--------------------------------------------|
   | first element | statement type                     | syntax                                  | Example                                    |
   |---------------+------------------------------------+-----------------------------------------+--------------------------------------------|
-  | =             | a assignment of a single attribute | (= key value)                           | (= :rank :same)                            |
+  | =             | an assignment of a single attribute | (= key value)                           | (= :rank :same)                            |
   | :->           | a directed edge                    | (:-> attribute-list node1 node2 ...)    | (:-> ((:arrowsize 2)) a b c)               |
-  | :--           | a undirected edge                  | (:-- attribute-list node1 node2 ...)    | (:-- ((:arrowsize 2)) a b c)               |
+  | :--           | an undirected edge                 | (:-- attribute-list node1 node2 ...)    | (:-- ((:arrowsize 2)) a b c)               |
   | :graph        | attributes for a graph             | (:graph . attribute-list)               | (:graph (:shape :circle) (:style :filled)) |
   | :node         | attributes for a node              | (:node . attribute-list)                | (:node (:shape :circle) (:style :filled))  |
-  | :edge         | attributes for a edge              | (:edge . attribute-list)                | (:edge (:shape :circle) (:style :filled))  |
+  | :edge         | attributes for an edge             | (:edge . attribute-list)                | (:edge (:shape :circle) (:style :filled))  |
   | :{}           | a new statement list               | (:{} . graph-statement-list)            | (:{} (= :rank :same) (b) (d))              |
-  | :subgraph     | a subgraph                         | (:subgraph ID . subgraph-statement-list | (:subgraph cluster_1 (:-> () node1 node2)) |
+  | :subgraph     | a sub graph                        | (:subgraph ID . subgraph-statement-list | (:subgraph cluster_1 (:-> () node1 node2)) |
   | other atom    | a node statement                   | (node-id . attribute-list)              | (node1 (:label "nice node") (:shape :box)) |
   |---------------+------------------------------------+-----------------------------------------+--------------------------------------------|
 
@@ -59,10 +59,10 @@ generated DOT file.
 This library created a new package named as ~:dot~, and it exports the following functions to
 convert the S-Graphviz expression to a file can be read as the DOT Language.
 ** format-graph
-This function accepts a S-expression and a keyword ~:stream~.
+This function accepts an S-expression and a keyword ~:stream~.
 - The S-expression has the syntax of the S-Graphviz Language.
 - The stream is nil by default which means it will return a string which can be read as the DOT Language.
-  if the stream is not nil, then the target string will be written into this stream directly.
+  If the stream is not nil, then the target string will be written into this stream directly.
 
   For example, the following lisp expression
 #+BEGIN_SRC lisp :load no
@@ -80,14 +80,14 @@ digraph {
 }
 #+end_src
 ** render-graph
-This function is used to render a S-Graphviz expression to a image type,it accepts the following arguments.
-- a ~file-name~ for the target image,it can be a string or a pathname.
-- a ~S-expression~ for the graph
+This function is used to render an S-Graphviz expression to an image type, it accepts the following arguments.
+- a ~file-name~ for the target image, it can be a string or a path name.
+- an ~S-expression~ for the graph
 - a keyword ~format~ to indicate the image type, it is the file type of ~file-name~ by default.
 - a keyword ~dot-exe~ for the target dot application, it is ~dot~ by default.
 - a keyword ~dot-arguments~ for the additional dot arguments, it is null by default.
 
-For example to render a S-Graphviz expression to a image file, we can run the following lisp expression.
+For example to render an S-Graphviz expression to an image file, we can run the following lisp expression.
 #+BEGIN_SRC lisp :load no
 (graphviz:render-graph "/tmp/test1.png"
                   '(:digraph ()

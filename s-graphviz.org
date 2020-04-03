@@ -1,5 +1,5 @@
 # -*- Mode: POLY-ORG ;-*- ---
-#+Title: a S-expression presentation of GraphViz DOT language
+#+Title: an S-expression presentation of GraphViz DOT language
 #+OPTIONS: tex:t toc:2 \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t
 #+STARTUP: latexpreview
 #+STARTUP: noindent
@@ -11,10 +11,10 @@
 - [[#preparation][Preparation]]
 - [[#language-presentation][Language presentation]]
   - [[#global-variables][global variables]]
-    - [[#the-encode-stream][the encode stream]]
+    - [[#the-encoded-stream][the encoded stream]]
     - [[#the-indent-level][the indent level]]
     - [[#the-default-size-for-indent-tab][the default size for indent tab]]
-  - [[#how-to-render-a-s-graphviz-s-expression][how to render a S-GRAPHVIZ S-expression]]
+  - [[#how-to-render-an-s-graphviz-s-expression][how to render an S-GRAPHVIZ S-expression]]
   - [[#graph][graph]]
   - [[#stmt-list][stmt-list]]
   - [[#stmt][stmt]]
@@ -68,13 +68,13 @@ subgraph	:	[ subgraph [ ID ] ] '{' stmt_list '}'
 compass_pt	:	(n | ne | e | se | s | sw | w | nw | c | _)
 #+end_src
 ** global variables
-*** the encode stream
+*** the encoded stream
 The encoded DOT expressions will print to this stream.
 #+BEGIN_SRC lisp
 (defvar *dot-stream*)
 #+END_SRC
 *** the indent level
-How many whitespaces will be written before printing current DOT expression.
+How many white spaces will be written before printing current DOT expression.
 #+BEGIN_SRC lisp
 (defvar *indent-spaces* 0)
 #+END_SRC
@@ -82,10 +82,10 @@ How many whitespaces will be written before printing current DOT expression.
 #+BEGIN_SRC lisp
 (defvar *indent-tab-size* 2)
 #+END_SRC
-** how to render a S-GRAPHVIZ S-expression
+** how to render an S-GRAPHVIZ S-expression
 Renders a s-graphviz graph into a graphic file.
-~file-name~ should be a pathname.
-If the file-name is ~/foo/bar.png~ , the DOT file ~/foo/bar.dot~ is created
+~file-name~ should be a path name.
+If the file-name is ~/foo/bar.png~, the DOT file ~/foo/bar.dot~ is created
 and then rendered.
 Format should be one out of http://www.graphviz.org/doc/info/output.html,
 for example svg,  ps, gif, png, or jpg.
@@ -107,7 +107,7 @@ for example svg,  ps, gif, png, or jpg.
                       :ignore-error-status t)))
 #+END_SRC
 
-We will provide a helpful routine to render a S-GRAPHVIZ S-expression and open it in Emacs.
+We will provide a helpful routine to render an S-GRAPHVIZ S-expression and open it in Emacs.
 #+BEGIN_SRC lisp :load dev
 (defmacro render-and-open-s-graphviz (file-name &rest left-args)
   (let ((real-file-name (gensym "file-name")))
@@ -153,7 +153,7 @@ We will provide a helpful routine to render a S-GRAPHVIZ S-expression and open i
 
 ** stmt-list
 a graph is established by a stmt_list.
-We can also apply some global configuration in a ~stmt_list~ to limit their affection scope,for example:
+We can also apply some global configuration in a ~stmt_list~ to limit their affection scope, for example:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-graphviz
  (merge-pathnames
@@ -190,7 +190,7 @@ We can also apply some global configuration in a ~stmt_list~ to limit their affe
 #+END_SRC
 
 ** stmt
-There are many different kinds of statements,let's recognize them one by one.
+There are many kinds of statements, let's recognize them one by one.
 
 #+BEGIN_SRC lisp
 (defun format-stmt (stmt)
@@ -205,7 +205,7 @@ There are many different kinds of statements,let's recognize them one by one.
 
 ** node statement
 
-If a statement starts without a known keyword, then it's a node statement,for example
+If a statement starts without a known keyword, then it's a node statement, for example
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-graphviz
  (merge-pathnames
@@ -227,7 +227,7 @@ If a statement starts without a known keyword, then it's a node statement,for ex
 #+begin_src bnf
 node_id	:	ID [ port ]
 #+end_src
-In a S-expression, it can be a single id or a list contains both id and port.
+In an S-expression, it can be a single id or a list contains both id and port.
 #+BEGIN_SRC lisp
 (defun format-node-id (id-port)
   (if (atom id-port)
@@ -243,7 +243,7 @@ In a S-expression, it can be a single id or a list contains both id and port.
 edge_stmt	:	(node_id | subgraph) edgeRHS [ attr_list ]
 edgeRHS	:	edgeop (node_id | subgraph) [ edgeRHS ]
 #+end_src
-In a S-expression, it's a list that starts with an ~edgeop~ and an ~attr_list~ and
+In an S-expression, it's a list that starts with an ~edgeop~ and an ~attr_list~ and
 the rest are a list of ~node id~, for example
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-graphviz
@@ -279,7 +279,7 @@ the rest are a list of ~node id~, for example
 #+begin_src bnf
 attr_stmt	:	(graph | node | edge) attr_list
 #+end_src
-In a S-GRAPHVIZ S-expression, it starts with keyword ~:graph~, ~:node~, ~:edge~ , and the rest items
+In an S-GRAPHVIZ S-expression, it starts with keyword ~:graph~, ~:node~, ~:edge~ , and the rest items
 in the list is the ~attr_list~(ref:attr-list),for example:
 #+begin_src lisp :load no
 (render-and-open-s-graphviz
@@ -304,7 +304,7 @@ in the list is the ~attr_list~(ref:attr-list),for example:
 #+END_SRC
 ** attribute
 a single attribute can be applied to global environment in a statement,
-in a S-GRAPHVIZ S-expression, it looks like this:
+in an S-GRAPHVIZ S-expression, it looks like this:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-graphviz
  (merge-pathnames
@@ -326,7 +326,7 @@ in a S-GRAPHVIZ S-expression, it looks like this:
 #+END_SRC
 ** subgraph
 It a subgraph's name starts with "cluster", then it has a special meaning.
-in a S-GRAPHVIZ S-expression, it looks like this:
+in an S-GRAPHVIZ S-expression, it looks like this:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-graphviz
  (merge-pathnames
@@ -372,7 +372,7 @@ port	:	':' ID [ ':' compass_pt ]
        |	':' compass_pt
 compass_pt	:	(n | ne | e | se | s | sw | w | nw | c | _)
 #+end_src
-In a S-GRAPHVIZ S-expression, it looks like this:
+In an S-GRAPHVIZ S-expression, it looks like this:
 #+BEGIN_SRC lisp :load no
 (render-and-open-s-graphviz
  (merge-pathnames
@@ -402,7 +402,7 @@ label:attr-list
 attr_list	:	'[' [ a_list ] ']' [ attr_list ]
 a_list	:	ID '=' ID [ (';' | ',') ] [ a_list ]
 #+end_src
-In a S-expression, it is an association list like this:
+In an S-expression, it is an association list like this:
 #+BEGIN_SRC lisp :load no
 ((:label "a label") (:shape :box))
 #+END_SRC
