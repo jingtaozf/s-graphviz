@@ -113,6 +113,9 @@ We will provide a helpful routine to render a S-GRAPHVIZ S-expression and open i
   (let ((real-file-name (gensym "file-name")))
     `(let ((,real-file-name (namestring ,file-name)))
        (render-graph ,real-file-name ,@left-args)
+       #+slynk
+       (slynk:eval-in-emacs `(find-file ,,real-file-name) t)
+       #+swank
        (swank:eval-in-emacs `(find-file ,,real-file-name) t))))
 #+END_SRC
 
