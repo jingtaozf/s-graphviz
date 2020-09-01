@@ -102,16 +102,20 @@ For example to render an S-Graphviz expression to an image file, we can run the 
 We will store all images in this section in the subdirectory ~images~
 #+BEGIN_SRC lisp :load demo
 (defun render-graphviz-demo (name s-expression)
-  (graphviz:render-graph
-   (merge-pathnames
-    (format nil "images/~a.png" name)
-    (asdf:component-pathname (asdf:find-system :s-graphviz)))
-   s-expression))
+  (let ((target-file (format nil "images/~a.png" name)))
+    (graphviz:render-graph
+     (merge-pathnames
+      target-file
+      (asdf:component-pathname (asdf:find-system :s-graphviz)))
+     s-expression)
+    target-file))
 #+END_SRC
+In above routine, we return the target file so when you execute the following example with =org-babel=, it could update the image file
+automatically.  
 
 ** a finite state machine
 The original example is [[https://graphviz.gitlab.io/_pages/Gallery/directed/fsm.html][here]].
-#+BEGIN_SRC lisp :load demo
+#+BEGIN_SRC lisp :load demo :results file :exports both
 (render-graphviz-demo
  "fsm"
  '(:digraph nil
@@ -135,10 +139,13 @@ The original example is [[https://graphviz.gitlab.io/_pages/Gallery/directed/fsm
    (:-> ((:label "S(a)")) LR_8 LR_5)
    ))
 #+END_SRC
+
+#+RESULTS:
 [[file:images/fsm.png]]
+
 ** a cluster
 The original example is [[https://graphviz.gitlab.io/_pages/Gallery/directed/cluster.html][here]].
-#+BEGIN_SRC lisp :load demo
+#+BEGIN_SRC lisp :load demo :results file :exports both
 (render-graphviz-demo
  "cluster2"
  '(:digraph nil
@@ -163,13 +170,18 @@ The original example is [[https://graphviz.gitlab.io/_pages/Gallery/directed/clu
    (end (:shape "Msquare"))
    ))
 #+END_SRC
-[[file:./images/cluster2.png]]
+
+#+RESULTS:
+[[file:images/cluster2.png]]
+
 ** add compass point value in a node id
 You can add a compass point value in any node id as you can in the original DOT Language, for example:
-#+BEGIN_SRC lisp :load demo
+#+BEGIN_SRC lisp :load demo :results file :exports both
 (render-graphviz-demo
  "port"
  '(:digraph nil
    (:-> nil (node1 :e) (node2 :s))))
 #+END_SRC
-[[file:./images/port.png]]
+
+#+RESULTS:
+[[file:images/port.png]]
