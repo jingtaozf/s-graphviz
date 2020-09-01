@@ -110,7 +110,7 @@ We will store all images in this section in the subdirectory ~images~
      s-expression)
     target-file))
 #+END_SRC
-In above routine, we return the target file so when you execute the following example with =org-babel=, it could update the image file
+In above routine, we return the target file so when you execute the following examples with =org-babel=, it could update the image file
 automatically.  
 
 ** a finite state machine
