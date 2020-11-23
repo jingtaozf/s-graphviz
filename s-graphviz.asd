@@ -13,7 +13,7 @@
   :version "2.0"
   :licence "MIT"
   :serial t
-  :description "a s-expression presentation of GraphViz DOT language"
+  :description "An s-expression presentation of GraphViz DOT language"
   :defsystem-depends-on ("literate-lisp")
   :depends-on ((:version :iterate "1.5"))
   :components ((:module :demo :pathname "./"

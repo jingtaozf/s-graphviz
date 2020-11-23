@@ -56,7 +56,7 @@ If the ~ID~ is a symbol, it will be converted to a lowercase DOT symbol in order
 generated DOT file.
 
 * Exported Functions
-This library created a new package named as ~:dot~, and it exports the following functions to
+This library created a new package named as ~s-graphviz~, and it exports the following functions to
 convert the S-Graphviz expression to a file can be read as the DOT Language.
 ** format-graph
 This function accepts an S-expression and a keyword ~:stream~.
