@@ -80,7 +80,7 @@ digraph {
 }
 #+end_src
 ** render-graph
-This function is used to render an S-Graphviz expression to an image type, it accepts the following arguments.
+This function is used to render an S-Graphviz expression to an image file, it accepts the following arguments.
 - a ~file-name~ for the target image, it can be a string or a path name.
 - an ~S-expression~ for the graph
 - a keyword ~format~ to indicate the image type, it is the file type of ~file-name~ by default.
